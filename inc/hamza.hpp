@@ -8,4 +8,6 @@
 const char* python = "python ";
 const char* FRcmd = "cd ~/devel/hamza/facerecognition/ && python facial_req.py &";
 
+void Init();
+
 #endif

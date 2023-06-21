@@ -44,6 +44,11 @@ Run = 1;
 
 # loop over frames from the video file stream
 while Run:
+    shutdown = open("/tmp/shutdown.hamza", "r")
+    if "1" in shutdown.read():
+        break
+    time.sleep(0.1)
+
     # grab the frame from the threaded video stream and resize it
     # to 500px (to speedup processing)
     frame = vs.read()
@@ -126,10 +131,6 @@ while Run:
 
     # update the FPS counter
     # fps.update()
-    shutdown = open("/tmp/shutdown.hamza", "r")
-    if "1" in shutdown.read():
-        break
-    time.sleep(0.1)
 
 # stop the timer and display FPS information
 # fps.stop()
