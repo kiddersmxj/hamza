@@ -1,5 +1,4 @@
 #include "../inc/child.hpp"
-#include <cstdio>
 
 Child::Child(const char* Program) {
     std::cout << "Launching child process... " << Program << std::endl;

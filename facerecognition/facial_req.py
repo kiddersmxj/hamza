@@ -1,29 +1,29 @@
 #! /usr/bin/python
-
-Display = False;
-
-# import the necessary packages
 from imutils.video import VideoStream
-# from imutils.video import FPS
+from imutils.video import FPS
 import face_recognition
+import struct
+import socket
 import imutils
 import pickle
 import time
-if Display:
-    import cv2
+import cv2
 import sys
+
+SendFrames = False
+clientsocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+try:
+    clientsocket.connect(('localhost',8089))
+except:
+    SendFrames = False
 
 #Initialize 'currentname' to trigger only when a new person is identified.
 currentname = "unknown"
 #Determine faces from encodings.pickle file model created from train_model.py
 encodingsP = "encodings.pickle"
 
-# print(str(sys.argv))
-#Display?
-
 # load the known faces and embeddings along with OpenCV's Haar
 # cascade for face detection
-#print("[INFO] loading encodings + face detector...")
 data = pickle.loads(open(encodingsP, "rb").read())
 # print(data);
 
@@ -31,36 +31,31 @@ data = pickle.loads(open(encodingsP, "rb").read())
 # Set the ser to the followng
 # src = 0 : for the build in single web cam, could be your laptop webcam
 # src = 2 : I had to set it to 2 inorder to use the USB webcam attached to my laptop
-vs = VideoStream(src=0,framerate=10).start()
-# print(vs);
-#vs = VideoStream(usePiCamera=True).start()
-# time.sleep(2.0)
+vs = VideoStream(src=0,framerate=32).start()
 
 # start the FPS counter
-# fps = FPS().start()
-# print(fps)
+fps = FPS().start()
 
-Run = 1;
+Display = True
 
 # loop over frames from the video file stream
-while Run:
+while 1:
     shutdown = open("/tmp/shutdown.hamza", "r")
     if "1" in shutdown.read():
         break
-    time.sleep(0.1)
+    # time.sleep(0.1)
 
     # grab the frame from the threaded video stream and resize it
     # to 500px (to speedup processing)
     frame = vs.read()
-    # print(frame)
     frame = imutils.resize(frame, width=500)
+
     # Detect the fce boxes
     boxes = face_recognition.face_locations(frame)
     # compute the facial embeddings for each face bounding box
     encodings = face_recognition.face_encodings(frame, boxes)
     names = []
-
-    # loop over the facial embeddings
+   # loop over the facial embeddings
     for encoding in encodings:
         # attempt to match each face in the input image to our known
         # encodings
@@ -86,34 +81,26 @@ while Run:
             # of votes (note: in the event of an unlikely tie Python
             # will select first entry in the dictionary)
             name = max(counts, key=counts.get)
-            # print(name)
-            # sys.stdout.buffer.write(name)
-            # sys.stdout.buffer.flush()
             sys.stdout.write(str(name) + "\n")
             sys.stdout.flush()
-            # sys.stdout.write('\n')
-            # sourceFile = open('recognised', 'a')
-            # print(name, file = sourceFile)
-            # sourceFile.close()
 
             #If someone in your dataset is identified, print their name on the screen
             if currentname != name:
                 currentname = name
-                # print(currentname)
 
         # update the list of names
         names.append(name)
 
-    if Display:
-        # loop over the recognized faces
-        for ((top, right, bottom, left), name) in zip(boxes, names):
-            # draw the predicted face name on the image - color is in BGR
-            cv2.rectangle(frame, (left, top), (right, bottom),
-                (52, 165, 111), 2)
-            y = top - 15 if top - 15 > 15 else top + 15
-            cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                .8, (52, 165, 111), 2)
+    # loop over the recognized faces
+    for ((top, right, bottom, left), name) in zip(boxes, names):
+        # draw the predicted face name on the image - color is in BGR
+        cv2.rectangle(frame, (left, top), (right, bottom),
+            (52, 165, 111), 2)
+        y = top - 15 if top - 15 > 15 else top + 15
+        cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+            .8, (52, 165, 111), 2)
 
+    if Display:
         # display the image to our screen
         # key: (check cv::WindowFlags)
         # floating = 1
@@ -130,12 +117,28 @@ while Run:
             break
 
     # update the FPS counter
-    # fps.update()
+    fps.update()
+
+    if not SendFrames:
+        try:
+            clientsocket.connect(('localhost',8089))
+        except:
+            SendFrames = False
+    else:
+        try:
+            # Serialize frame
+            serialframe = pickle.dumps(frame)
+            # Send message length first
+            message_size = struct.pack("L", len(serialframe))
+            # Then data
+            clientsocket.sendall(message_size + serialframe)
+        except:
+            SendFrames = False
 
 # stop the timer and display FPS information
-# fps.stop()
-#print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-#print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 if Display:
