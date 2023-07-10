@@ -82,11 +82,19 @@ int main(int argc, char** argv) {
 
         if(Parse == "") {
             /* std::cout << Meaning.Compare("called", "with the name of") << std::endl; */
-            std::cout << Meaning.Attribute("turn off the lights") << std::endl;
-            std::cout << Meaning.Attribute("create a cpp project called assimilate") << std::endl;
-            std::cout << Meaning.Attribute("create a cpp program named assimilate") << std::endl;
-            std::cout << Meaning.Attribute("add a cpp class called assimilate") << std::endl;
-            std::cout << Meaning.Attribute("add a class file named assimilate of type cpp") << std::endl;
+            /* std::cout << Meaning.Attribute("turn off the lights") << std::endl; */
+            /* std::cout << Meaning.Attribute("create a cpp project called assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("create a cpp program named assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("add a cpp class called assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("add a class file named assimilate of type cpp") << std::endl; */
+            std::string Corpus;
+            std::cout << "Enter corpus:" << std::endl;
+            getline(std::cin, Corpus);
+            while(Corpus != "") {
+                std::cout << Meaning.Attribute(Corpus) << std::endl;
+                std::cout << std::endl << "Enter corpus:" << std::endl;
+                getline(std::cin, Corpus);
+            }
         } else 
             std::cout << Meaning.Attribute(Parse) << std::endl;
         return EXIT_SUCCESS;
