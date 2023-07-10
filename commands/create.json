@@ -1,0 +1,38 @@
+{
+    "create": {
+        "command": "create",
+        "index": 0,
+        "bases": [ "create project", "create program", "create" ],
+        "args": {
+            "name": [ "name", "named", "called" ],
+            "type": [ "type" ]
+        },
+        "options": {
+            "name": [ "optarg" ],
+            "type": [ "cpp", "cmake", "python", "py", "bash", "sh", "license", "readme" ]
+        },
+        "flags": [ "-n", "-t" ],
+        "defaults": "-c",
+        "confirm": false
+    },
+    "add": {
+        "command": "create",
+        "index": 1,
+        "bases": [ "add program", "add file", "add" ],
+        "args": {
+            "name": [ "name", "named", "called" ],
+            "type": [ "type" ],
+            "class": [ "class" ],
+            "struct": [ "struct" ]
+        },
+        "options": {
+            "name": [ "optarg" ],
+            "type": [ "cpp", "cmake", "python", "py", "bash", "sh", "license", "readme" ],
+            "class": [ "." ],
+            "struct": [ "." ]
+        },
+        "flags": [ "-n", "-t", "-C", "-S" ],
+        "defaults": "-a",
+        "confirm": false
+     }
+}

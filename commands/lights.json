@@ -1,0 +1,20 @@
+{
+    "lights": {
+        "command": "lights",
+        "index": 2,
+        "bases": [ "turn lights", "lights" ],
+        "args": [ "on", "off", "toggle" ],
+        "args": {
+            "on": [ "on" ],
+            "off": [ "off" ]
+        },
+        "options": {
+            "on": [ "." ],
+            "off": [ "." ]
+        },
+        "name": "lights",
+        "flags": [ "--on", "--off", "--toggle" ],
+        "defaults": "",
+        "confirm": false
+    }
+}
