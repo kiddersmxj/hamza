@@ -20,9 +20,9 @@ using json = nlohmann::json_abi_v3_11_2::json;
 void Usage();
 void Usage(std::string Message);
 void PrintVersion();
-void Init();
+void FRInit();
 void DoFR();
 void LoadCommands(std::vector<Command> &Commands);
-json Merge(const json &a, const json &b);
+/* json Merge(const json &a, const json &b); */
 
 #endif

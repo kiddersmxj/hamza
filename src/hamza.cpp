@@ -126,7 +126,7 @@ void PrintVersion() {
     std::cout << ProgramName << ": version " << Version << std::endl;
 }
 
-void Init() {
+void FRInit() {
     std::ofstream fs("/tmp/shutdown.hamza", std::ofstream::trunc);
     fs << "0";
     fs.close();
@@ -134,7 +134,7 @@ void Init() {
 
 void DoFR() {
     const char* Program = FRcmd.c_str();
-    Init();
+    FRInit();
     Child FR(Program);
     while(!FR.QuestionExit()) {
         std::cout << FR.Read() << std::endl;
