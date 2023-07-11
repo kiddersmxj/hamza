@@ -5,7 +5,7 @@
 
 class Execute : Child {
     public:
-        Execute(const char* Program);
+        Execute(std::string Program);
 };
 
 #endif
