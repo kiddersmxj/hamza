@@ -3,8 +3,10 @@
 set -e
 Built=0
 
+HamzaDir="$HOME/.hamza"
+
 err() {
-    rm -rf venv
+    rm -rf $HamzaDir/venv
     echo ""
     echo "An error occurred:"
     awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),$0 }' L=$1 $0
@@ -12,23 +14,28 @@ err() {
 
 trap 'err $LINENO' ERR
 
-if [ -d "venv" ]; then
+if [ -d "$HamzaDir/venv" ]; then
     if [[ -z "$VIRTUAL_ENV" ]]; then
         echo "No VIRTUAL_ENV set"
-        echo "Please run . venv/bin/activate"
+        echo "Please run . $HamzaDir/venv/bin/activate"
         exit
     else
         echo "VIRTUAL_ENV is set"
     fi
 else
     echo "Building virtual environment"
-    python -m venv venv
-    . venv/bin/activate
+    mkdir -p $HamzaDir
+    python -m venv $HamzaDir/venv
+    . $HamzaDir/venv/bin/activate
     echo "Installing requirments"
+    python -m pip install --upgrade pip
     python -m pip install -r requirements.txt
     python -m pip install -U spacy
     python -m spacy download en_core_web_md
     echo "Requirements installed!"
+    echo "Installing command files"
+    cp -r commands $HamzaDir
+    cp -r python $HamzaDir
     echo "Beginning compilation"
     Built=1
 fi
@@ -37,11 +44,14 @@ if [[ $1 != "" ]]; then
     ARGS="-D$1"
 fi
 
+cp -r commands $HamzaDir
+cp -r python $HamzaDir
+
 cmake -B build $ARGS && cmake --build build && sudo cmake --install build
 
 if [[ $Built == 1 ]]; then
     echo ""
-    echo "Please run . venv/bin/activate"
+    echo "Please run . $HamzaDir/venv/bin/activate"
 fi
 
 # Copyright (c) 2023, Maxamilian Kidd-May

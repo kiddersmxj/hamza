@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <std-k.hpp>
 
 const std::string ProgramName = "hamza";
 const std::string Version = "0.0.0";
@@ -12,9 +13,14 @@ options:
     -v / --version      print version and exit
 )";
 
-const std::string CommandsDir = "./commands/";
+const std::string HamzaDir = HOME + "/.hamza";
+
+const std::string CommandsDir = HamzaDir + "/commands/";
 const double MinSim = 0.5;
 const double HighSim = 0.95;
+
+const std::string PythonDir = HamzaDir + "/python/";
+const std::string FRcmd = "cd " + PythonDir + "facerecognition/ && python facial_req.py &";
 
 const std::vector<std::string> Stopwords = {
     "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in",

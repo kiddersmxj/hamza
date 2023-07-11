@@ -10,8 +10,9 @@ class Child {
     public:
         Child(const char* Program);
         std::string Read();
-        void Close();
+        int Close();
         bool QuestionExit();
+        std::vector<std::string> Output;
     private:
         bool Exit = 0;
         char path[PATH_MAX];

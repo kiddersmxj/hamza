@@ -41,12 +41,18 @@ project(hamza
     VERSION 0.0.0
 )
 
+if(test)
+    message("Testing enabled")
+    add_compile_definitions(TEST)
+endif()
+
 add_executable(hamza src/hamza.cpp)
 
 target_sources(hamza
     PRIVATE src/hamza.cpp
     PRIVATE src/child.cpp
     PRIVATE src/assimilate.cpp
+    PRIVATE src/execute.cpp
 )
 
 target_include_directories(hamza 

@@ -11,9 +11,12 @@ Child::Child(const char* Program) {
 }
 
 std::string Child::Read() {
-    std::cout << fgets(path, 1000, fp) << std::endl;
-    if(fgets(path, 1000, fp) != NULL) {
-        return path;
+    /* std::cout << fgets(path, 1000, fp) << std::endl; */
+    char* Out =  fgets(path, 1000, fp);
+    if(Out != NULL) {
+        /* std::cout << "r:" << Out << std::endl; */
+        Output.push_back(k::StripTrailingNL(Out));
+        return Out;
     } else  {
         Exit = 1;
         return "EXIT";
@@ -24,14 +27,25 @@ bool Child::QuestionExit() {
     return Exit;
 }
 
-void Child::Close() {
+int Child::Close() {
     int status = pclose(fp);
     if (status == -1) {
         /* Error reported by pclose() */
-        printf("Error, reported");
+        printf("pclose error reported");
     } else {
         /* Use macros described under wait() to inspect `status' in order
          to determine success/failure of command executed by popen() */
-        printf("Done running");
+        /* printf("Done running"); */
     }
+    int Err = -1;
+    std::string err = Output.back();
+    if(k::IsInteger(err))
+        Err = std::atoi(Output.back().c_str());
+    else
+        std::cout << "Invalid error code" << std::endl;
+
+    /* std::cout << "Output\n"; */
+    /* k::VPrint(Output); */
+    /* std::cout << "Output\n"; */
+    return Err;
 }

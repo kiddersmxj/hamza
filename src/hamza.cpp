@@ -91,12 +91,21 @@ int main(int argc, char** argv) {
             std::cout << "Enter corpus:" << std::endl;
             getline(std::cin, Corpus);
             while(Corpus != "") {
-                std::cout << Meaning.Attribute(Corpus) << std::endl;
+                auto CMD = Meaning.Attribute(Corpus);
+                std::cout << CMD << std::endl;
+#ifndef TEST
+                Execute Execute(CMD);
+#endif
                 std::cout << std::endl << "Enter corpus:" << std::endl;
                 getline(std::cin, Corpus);
             }
-        } else 
-            std::cout << Meaning.Attribute(Parse) << std::endl;
+        } else  {
+            auto CMD = Meaning.Attribute(Parse);
+            std::cout << CMD << std::endl;
+#ifndef TEST
+                Execute Execute(CMD);
+#endif
+        }
         return EXIT_SUCCESS;
     }
 
@@ -124,7 +133,7 @@ void Init() {
 }
 
 void DoFR() {
-    const char* Program = FRcmd;
+    const char* Program = FRcmd.c_str();
     Init();
     Child FR(Program);
     while(!FR.QuestionExit()) {
@@ -190,12 +199,12 @@ void LoadCommands(std::vector<Command> &Commands) {
     }
 }
 
-json Merge(const json &a, const json &b) {
-    json result = a.flatten();
-    json tmp = b.flatten();
+/* json Merge(const json &a, const json &b) { */
+/*     json result = a.flatten(); */
+/*     json tmp = b.flatten(); */
 
-    for (json::iterator it = tmp.begin(); it != tmp.end(); ++it)
-        result[it.key()] = it.value();
+/*     for (json::iterator it = tmp.begin(); it != tmp.end(); ++it) */
+/*         result[it.key()] = it.value(); */
 
-    return result.unflatten();
-}
+/*     return result.unflatten(); */
+/* } */
