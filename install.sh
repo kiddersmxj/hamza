@@ -35,6 +35,7 @@ else
     echo "Requirements installed!"
     echo "Installing command files"
     cp -r commands $HamzaDir
+    cp -r python $HamzaDir
     echo "Beginning compilation"
     Built=1
 fi
@@ -42,6 +43,9 @@ fi
 if [[ $1 != "" ]]; then
     ARGS="-D$1"
 fi
+
+cp -r commands $HamzaDir
+cp -r python $HamzaDir
 
 cmake -B build $ARGS && cmake --build build && sudo cmake --install build
 
