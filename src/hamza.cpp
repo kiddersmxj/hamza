@@ -93,14 +93,18 @@ int main(int argc, char** argv) {
             while(Corpus != "") {
                 auto CMD = Meaning.Attribute(Corpus);
                 std::cout << CMD << std::endl;
+#ifndef TEST
                 Execute Execute(CMD);
+#endif
                 std::cout << std::endl << "Enter corpus:" << std::endl;
                 getline(std::cin, Corpus);
             }
         } else  {
             auto CMD = Meaning.Attribute(Parse);
             std::cout << CMD << std::endl;
-            Execute Execute(CMD);
+#ifndef TEST
+                Execute Execute(CMD);
+#endif
         }
         return EXIT_SUCCESS;
     }
