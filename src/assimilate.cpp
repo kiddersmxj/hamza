@@ -56,7 +56,7 @@ std::string Assimilate::Attribute(std::string Input) {
         for(Spacy::Doc B: C.BaseDocs) {
             double Sim = doc.similarity(B);
             /* std::cout << C.Name << " " << Sim << std::endl; */
-            if(Sim > Highest) {
+            if(Sim > Highest && Sim > MinSim) {
                 Highest = Sim;
                 Index = C.Index;
                 Name = C.Name;
@@ -68,6 +68,10 @@ std::string Assimilate::Attribute(std::string Input) {
         }
         if(Highest == 1) break;
         t++;
+    }
+    if(Highest == 0) {
+        std::cout << "Unkown Command" << std::endl;
+        return "";
     }
 
     Command C = Commands.at(CNum);
