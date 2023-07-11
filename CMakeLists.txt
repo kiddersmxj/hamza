@@ -47,6 +47,7 @@ target_sources(hamza
     PRIVATE src/hamza.cpp
     PRIVATE src/child.cpp
     PRIVATE src/assimilate.cpp
+    PRIVATE src/execute.cpp
 )
 
 target_include_directories(hamza 
