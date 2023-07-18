@@ -22,12 +22,18 @@ const double HighSim = 0.95;
 const std::string PythonDir = HamzaDir + "/python/";
 const std::string FRcmd = "cd " + PythonDir + "facerecognition/ && python facial_req.py &";
 
+const std::vector<std::string> ProjectDirPaths = {
+    HOME + "/devel"
+};
+
 const std::vector<std::string> Stopwords = {
     "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in",
     "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the",
     "their", "then", "there", "these", "they", "this", "to", "was", "will",
     "with"
 };
+
+const std::string OptUsed = "OPTUSED";
 
 #endif
 

@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 #include "command.hpp"
+#include "child.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -32,6 +33,12 @@ class Assimilate {
         void RemoveStopwords(std::string &sentence);
         double FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc);
         double FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc, std::string &Return);
+        std::string ParseCommand(Command C, std::vector<std::string> PassingArgs, \
+                                 std::vector<std::string> PassingFlags, \
+                                 std::vector<std::string> PassingNoOptFlags);
+        std::vector<std::string> GetListArgs(int t, Command C, std::string Cmd);
+        std::string RemoveExtraWhitespace(const std::string& str);
+        std::string RemoveUsedOption(const std::string& str);
 };
 
 #endif

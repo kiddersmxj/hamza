@@ -14,7 +14,6 @@ std::string Child::Read() {
     /* std::cout << fgets(path, 1000, fp) << std::endl; */
     char* Out =  fgets(path, 1000, fp);
     if(Out != NULL) {
-        /* std::cout << "r:" << Out << std::endl; */
         Output.push_back(k::StripTrailingNL(Out));
         return Out;
     } else  {

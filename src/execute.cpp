@@ -14,7 +14,7 @@ Execute::Execute(std::string Program) : Child((Program + " 2>&1; echo \"$?\"").c
         // NO info given on proc execution by pclose - report to user
     } else if(Err > 0) {
         std::vector<std::string> ErrMsg;
-        k::SplitString(Output.front(), ':', ErrMsg);
+        k::SplitString(Output.front(), ':', ErrMsg, 0);
         std::cout << "errstr: " << ErrMsg.back() << std::endl;
     }
 }

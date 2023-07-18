@@ -41,6 +41,7 @@ std::string Assimilate::Attribute(std::string Input) {
     double Highest = 0;
     std::string RootClause;
     std::string RootBase;
+    std::string RootBaseActual;
     std::vector<std::string> PassingArgs;
     std::vector<std::string> PassingFlags;
     Spacy::Token RootToken = GetRootClause(In, RootClause);
@@ -60,8 +61,10 @@ std::string Assimilate::Attribute(std::string Input) {
                 Highest = Sim;
                 Index = C.Index;
                 Name = C.Name;
+                RootBaseActual = B.text();
                 RootBase = Commands.at(t).Bases.at(b);
                 CNum = t;
+                /* std::cout << "RB: " << RootBase << " RBA: " << RootBaseActual << std::endl; */
             }
             if(Highest == 1) break;
             b++;
@@ -87,9 +90,9 @@ std::string Assimilate::Attribute(std::string Input) {
     int c(0);
     for(std::string Clause: Clauses) {
         /* std::cout << "\nnew clause\n\n"; */
-        if(Clause == RootClause) {
-            RemoveBase(RootBase, Clause);
-        }
+        /* if(Clause == RootClause) { */
+        /*     RemoveBase(RootBase, Clause); */
+        /* } */
         if(k::RemoveWhitespace(Clause) != "") {
             auto ClauseDoc = nlp.parse(Clause);
             int t(0);
@@ -102,9 +105,9 @@ std::string Assimilate::Attribute(std::string Input) {
                     /* std::cout << "this has optarg" << std::endl; */
                     for(std::string ArgBase: Arg) {
                         double Sim = ClauseDoc.similarity(nlp.parse(ArgBase));
-                        /* std::cout << "ArgNo: " << t << "/" << b << " Clause: \"" */ 
-                                  /* << Clause << "\" AB: \"" */ 
-                                  /* << ArgBase <<  "\" sim: " << Sim << std::endl; */
+                        std::cout << "ArgNo: " << t << "/" << b << " Clause: \"" 
+                                  << Clause << "\" AB: \"" 
+                                  << ArgBase <<  "\" sim: " << Sim << std::endl;
                         if(Sim > MinSim) {
                             if(Sim > ArgHighest) {
                                 ArgHighest = Sim;
@@ -142,11 +145,30 @@ std::string Assimilate::Attribute(std::string Input) {
         c++;
     }
 
+    /* std::cout << "removing rootbase: " << RootBaseActual << " in: " << Input << std::endl; */
+    std::vector<std::string> Bs;
+    k::SplitString(RootBase, ' ', Bs, 1);
+    /* std::cout << "Bs:\n"; */
+    /* k::VPrint(Bs); */
+    for(std::string B: Bs) {
+        size_t found = Input.find(B);
+        if (found != std::string::npos) {
+            Input.erase(found, B.length());
+        }
+    }
+    size_t found = Input.find(C.Command);
+    if (found != std::string::npos) {
+        Input.erase(found, C.Command.length());
+    }
+    /* std::cout << "Input now: " << Input << std::endl; */
+    Input = RemoveExtraWhitespace(Input);
+    /* std::cout << "Input now: " << Input << std::endl; */
+
     t = 0;
     std::vector<Spacy::Doc> WordDocs;
     std::vector<std::string> Words;
     std::vector<std::string> PassingNoOptFlags;
-    k::SplitString(Input, ' ', Words);
+    k::SplitString(Input, ' ', Words, 1);
     /* k::VPrint(Words); */
     for(std::string Word: Words)
         WordDocs.push_back(nlp.parse(Word));
@@ -162,6 +184,22 @@ std::string Assimilate::Attribute(std::string Input) {
                 PassingNoOptFlags.push_back(C.Flags.at(t));
             }
                 // Here is oportune to add possible options to request confirmation
+        } else if(C.Options.at(t).at(0) == "listarg") {
+            for(std::string Opt: GetListArgs(t, C, ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags))) {
+                /* std::cout << "o: " << Opt << std::endl; */
+                std::string Return;
+                double Sim = FindInWords(Opt, WordDocs, Return);
+                /* std::cout << "sim: " << Sim << std::endl; */
+                if(Sim > HighSim) {
+                    /* std::cout << C.Args.at(t).at(0) << " wins with = " << HighSim << std::endl; */
+                    PassingFlags.push_back(C.Flags.at(t));
+                    PassingArgs.push_back(Opt);
+                    /* std::cout << "removing: " << Opt << std::endl; */
+                    WordDocs.at(k::VGetIndex(Words, Return)) = nlp.parse(OptUsed);
+                    /* std::cout << "w: " << Words.at(t) << " wd: -" \ */
+                              /* << WordDocs.at(t).text() << "-" << std::endl; */
+                }
+            }
         } else {
             for(std::string Opt: C.Options.at(t)) {
                 std::string Arg;
@@ -190,14 +228,7 @@ std::string Assimilate::Attribute(std::string Input) {
     /*           << " NooptF:" << PassingNoOptFlags.size() */ 
     /*           << " PassF: " << PassingFlags.size() << std::endl << std::endl; */
 
-    std::string CMD = C.Command;
-    for(int i(0); i<PassingArgs.size(); i++)
-        CMD = CMD + " " + PassingFlags.at(i) + " " + PassingArgs.at(i); // need to add distinction between flags that tak args and dont so iterators line up
-    for(std::string Flag: PassingNoOptFlags)
-        CMD = CMD + " " + Flag;
-    for(std::string Flag: C.DefaultFlags)
-        CMD = CMD + " " + Flag;
-
+    std::string CMD = ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags);
     /* std::cout << "COMMAND: " << CMD << std::endl; */
 
     /* Time.Close(); */
@@ -334,7 +365,7 @@ double Assimilate::FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc)
     auto OptDoc = nlp.parse(Opt);
     for(Spacy::Doc doc: WordDoc) {
         double Sim = doc.similarity(OptDoc);
-        /* std::cout << "Finding: " << Opt << " In Word: " << doc.text() << " = " << Sim << std::endl; */
+        /* std::cout << "Finding: -" << Opt << "- In Word: -" << doc.text() << "- = " << Sim << std::endl; */
         if(Sim > Highest)
             Highest = Sim;
     }
@@ -353,6 +384,85 @@ double Assimilate::FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc,
         }
     }
     return Highest;
+}
+
+std::string Assimilate::ParseCommand(Command C, std::vector<std::string> PassingArgs, \
+                                     std::vector<std::string> PassingFlags, \
+                                     std::vector<std::string> PassingNoOptFlags) {
+    std::string CMD = C.Command;
+    for(int i(0); i<PassingArgs.size(); i++)
+        CMD = CMD + " " + PassingFlags.at(i) + " " + PassingArgs.at(i); // need to add distinction between flags that tak args and dont so iterators line up
+    for(std::string Flag: PassingNoOptFlags)
+        CMD = CMD + " " + Flag;
+    for(std::string Flag: C.DefaultFlags)
+        CMD = CMD + " " + Flag;
+    return CMD;
+}
+
+std::vector<std::string> Assimilate::GetListArgs(int t, Command C, std::string Cmd) {
+    std::vector<std::string> Args;
+    Cmd = Cmd + C.Flags.at(t) + " list";
+    /* std::cout << Cmd << std::endl; */
+    Child Command(Cmd.c_str());
+    while(!Command.QuestionExit()) {
+        std::vector<std::string> tmp;
+        std::string read = k::StripTrailingNL(Command.Read());
+        k::SplitString(read, '.', tmp, 1);
+        Args.push_back(tmp.at(0));
+    }
+    /* std::cout << "args:\n"; */
+    /* k::VPrint(Args); */
+    return Args;
+}
+
+std::string Assimilate::RemoveExtraWhitespace(const std::string& str) {
+    std::string result;
+    bool previousSpace = false;
+    bool leadingSpace = true;
+
+    for (char c : str) {
+        if (std::isspace(c)) {
+            if (!previousSpace) {
+                if (!leadingSpace) {
+                    result.push_back(' ');
+                }
+                previousSpace = true;
+            }
+        } else {
+            result.push_back(c);
+            previousSpace = false;
+            leadingSpace = false;
+        }
+    }
+
+    return result;
+}
+
+std::string Assimilate::RemoveUsedOption(const std::string& str) {
+    std::istringstream iss(str);
+    std::string token;
+    std::string result;
+
+    bool prevSpace = false;
+
+    while(std::getline(iss, token, ' ')) {
+        if (token.empty()) {
+            if (prevSpace) {
+                result += "OPTUSED ";
+            }
+            prevSpace = true;
+        } else {
+            result += token + " ";
+            prevSpace = false;
+        }
+    }
+
+    // Remove trailing whitespace
+    if (!result.empty() && result[result.length() - 1] == ' ') {
+        result.erase(result.length() - 1);
+    }
+
+    return result;
 }
 
 // Copyright (c) 2023, Maxamilian Kidd-May
