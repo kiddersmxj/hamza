@@ -9,7 +9,7 @@
         },
         "options": {
             "name": [ "optarg" ],
-            "type": [ "cpp", "cmake", "python", "py", "bash", "sh", "license", "readme" ]
+            "type": [ "listarg" ]
         },
         "flags": [ "-n", "-t" ],
         "defaults": "-c",
@@ -27,7 +27,7 @@
         },
         "options": {
             "name": [ "optarg" ],
-            "type": [ "cpp", "cmake", "python", "py", "bash", "sh", "license", "readme" ],
+            "type": [ "listarg" ],
             "class": [ "." ],
             "struct": [ "." ]
         },
