@@ -401,7 +401,7 @@ std::string Assimilate::ParseCommand(Command C, std::vector<std::string> Passing
 
 std::vector<std::string> Assimilate::GetListArgs(int t, Command C, std::string Cmd) {
     std::vector<std::string> Args;
-    Cmd = Cmd + C.Flags.at(t) + " list";
+    Cmd = Cmd + " " + C.Flags.at(t) + " list";
     /* std::cout << Cmd << std::endl; */
     Child Command(Cmd.c_str());
     while(!Command.QuestionExit()) {
