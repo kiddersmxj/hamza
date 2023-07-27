@@ -23,5 +23,4 @@ jobs:
     - name: Install deps
       run: git clone https://github.com/kiddersmxj/std-k; cd std-k; bash install.sh; cd ..
     - name: Build using CMake
-    - name: Build using CMake
       run: ./install.sh
