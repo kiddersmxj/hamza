@@ -3,19 +3,6 @@ cmake_minimum_required (VERSION 3.26)
 # --- Fetch libs --------------------------------------------------------------
 
 include(FetchContent)
-
-set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
-FetchContent_Declare(std-k
-  GIT_REPOSITORY https://github.com/kiddersmxj/std-k
-  GIT_TAG main
-)
- 
-FetchContent_GetProperties(std-k)
-if(NOT std-k_POPULATED)
-  FetchContent_Populate(std-k)
-  add_subdirectory(${std-k_SOURCE_DIR} ${std-k_BINARY_DIR})
-endif()
-
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 FetchContent_Declare(spacy
   GIT_REPOSITORY https://github.com/kiddersmxj/spacy
@@ -55,9 +42,10 @@ target_sources(hamza
     PRIVATE src/execute.cpp
 )
 
+find_package(std-k REQUIRED)
+
 target_include_directories(hamza 
     PRIVATE inc
-    SHARED ${std-k_SOURCE_DIR}/inc
     SHARED ${spacy_SOURCE_DIR}/inc
 )
 
@@ -66,7 +54,6 @@ install(
     DESTINATION /usr/local/bin/
 )
 
-link_directories(${std-k_BINARY_DIR})
 link_directories(${spacy_BINARY_DIR})
 target_link_libraries(hamza
     PUBLIC std-k
