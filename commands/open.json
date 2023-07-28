@@ -1,0 +1,20 @@
+{
+    "open": {
+        "command": "open",
+        "index": 3,
+        "bases": [ "open project", "open program", "open", "open file", "bring up", "pull up", "open up" ],
+        "args": {
+            "project": [ "project", "named", "called" ],
+            "file": [ "file" ],
+            "ranger": [ "ranger" ]
+        },
+        "options": {
+            "project": [ "listarg" ],
+            "file": [ "listarg" ],
+            "ranger": [ "ranger" ]
+        },
+        "flags": [ "-p", "-f", "-r" ],
+        "defaults": "",
+        "confirm": false
+    }
+}
