@@ -1,0 +1,62 @@
+{
+    "play": {
+        "command": "$devel/dwm-k/BashScripts/media.sh toggle",
+        "index": 4,
+        "bases": [ "play", "play music", "play song" ],
+        "args": {},
+        "options": {},
+        "name": "play",
+        "flags": [],
+        "defaults": "",
+        "confirm": false,
+        "read": 0
+    },
+    "pause": {
+        "command": "$devel/dwm-k/BashScripts/media.sh toggle",
+        "index": 4,
+        "bases": [ "pause", "pasue music", "pause song" ],
+        "args": {},
+        "options": {},
+        "name": "pause",
+        "flags": [],
+        "defaults": "",
+        "confirm": false,
+        "read": 0
+    },
+    "skip": {
+        "command": "$devel/dwm-k/BashScripts/media.sh skip",
+        "index": 4,
+        "bases": [ "skip", "skip music", "skip song", "next", "next song" ],
+        "args": {},
+        "options": {},
+        "name": "skip",
+        "flags": [],
+        "defaults": "",
+        "confirm": false,
+        "read": 0
+    },
+    "previous": {
+        "command": "$devel/dwm-k/BashScripts/media.sh previousx2",
+        "index": 4,
+        "bases": [ "prevous", "previous song", "play previous song", "back song", "go back a song" ],
+        "args": {},
+        "options": {},
+        "name": "previous",
+        "flags": [],
+        "defaults": "",
+        "confirm": false,
+        "read": 0
+    },
+    "reload": {
+        "command": "$devel/dwm-k/BashScripts/media.sh previous",
+        "index": 4,
+        "bases": [ "reload", "reload that shit", "reload that song", "play again" ],
+        "args": {},
+        "options": {},
+        "name": "reload",
+        "flags": [],
+        "defaults": "",
+        "confirm": false,
+        "read": 0
+    }
+}

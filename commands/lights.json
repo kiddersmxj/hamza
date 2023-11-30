@@ -3,10 +3,10 @@
         "command": "lights",
         "index": 2,
         "bases": [ "turn lights", "lights" ],
-        "args": [ "on", "off", "toggle" ],
         "args": {
             "on": [ "on" ],
-            "off": [ "off" ]
+            "off": [ "off" ],
+            "toggle": [ "toggle" ]
         },
         "options": {
             "on": [ "." ],
@@ -15,6 +15,7 @@
         "name": "lights",
         "flags": [ "--on", "--off", "--toggle" ],
         "defaults": "",
-        "confirm": false
+        "confirm": false,
+        "read": 1
     }
 }

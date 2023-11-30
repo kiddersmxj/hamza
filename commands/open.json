@@ -6,15 +6,20 @@
         "args": {
             "project": [ "project", "named", "called" ],
             "file": [ "file" ],
-            "ranger": [ "ranger" ]
+            "ranger": [ "ranger" ],
+            "here": [ "here", "on this tag" ],
+            "destroy": [ "destory", "kill terminal" ]
         },
         "options": {
             "project": [ "listarg" ],
             "file": [ "listarg" ],
-            "ranger": [ "ranger" ]
+            "ranger": [ "ranger" ],
+            "here": [ "." ],
+            "destroy": [ "." ]
         },
         "flags": [ "-p", "-f", "-r" ],
         "defaults": "",
-        "confirm": false
+        "confirm": false,
+        "read": 1
     }
 }

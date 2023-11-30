@@ -13,7 +13,8 @@
         },
         "flags": [ "-n", "-t" ],
         "defaults": "-c",
-        "confirm": false
+        "confirm": false,
+        "read": 1
     },
     "add": {
         "command": "create",
@@ -33,6 +34,7 @@
         },
         "flags": [ "-n", "-t", "-C", "-S" ],
         "defaults": "-a",
-        "confirm": false
+        "confirm": false,
+        "read": 1
      }
 }
