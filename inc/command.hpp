@@ -7,6 +7,7 @@
 
 typedef struct {
     int Index;
+    int Read;
     bool Confirm;
     std::string Name;
     std::string Command;

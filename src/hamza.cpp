@@ -91,20 +91,38 @@ int main(int argc, char** argv) {
             std::cout << "Enter corpus:" << std::endl;
             getline(std::cin, Corpus);
             while(Corpus != "") {
-                auto CMD = Meaning.Attribute(Corpus);
-                std::cout << CMD << std::endl;
+                std::string CMD;
+                int Read = Meaning.Attribute(Corpus, CMD);
+                if(Read != -1) {
+                    std::cout
+                            << std::endl
+                            << "*************************" << std::endl
+                            << CMD << std::endl
+                            << "*************************" << std::endl
+                            << std::endl;
 #ifndef TEST
-                Execute Execute(CMD);
+                    if(Read == 1) Execute Execute(CMD);
+                    if(Read == 0) Child Child(CMD.c_str());
 #endif
+                }
                 std::cout << std::endl << "Enter corpus:" << std::endl;
                 getline(std::cin, Corpus);
             }
         } else  {
-            auto CMD = Meaning.Attribute(Parse);
-            std::cout << CMD << std::endl;
+            std::string CMD;
+            int Read = Meaning.Attribute(Parse, CMD);
+            if(Read != -1) {
+                std::cout
+                        << std::endl
+                        << "*************************" << std::endl
+                        << CMD << std::endl
+                        << "*************************" << std::endl
+                        << std::endl;
 #ifndef TEST
-                Execute Execute(CMD);
+                if(Read == 1) Execute Execute(CMD);
+                if(Read == 0) Child Child(CMD.c_str());
 #endif
+            }
         }
         return EXIT_SUCCESS;
     }
@@ -152,9 +170,11 @@ void LoadCommands(std::vector<Command> &Commands) {
         nlohmann::ordered_json JCmd = nlohmann::ordered_json::parse(JFile);
         for (nlohmann::ordered_json::iterator it = JCmd.begin(); it != JCmd.end(); ++it) {
             Command C;
+            /* std::cout << JCmd[C.Name] << std::endl; */
             C.Name = it.key();
-            C.Index = JCmd[C.Name]["index"];
+            C.Index = JCmd[C.Name]["index"]; // Not used or currently reliable
             C.Confirm = JCmd[C.Name]["confirm"];
+            C.Read = JCmd[C.Name]["read"];
             C.Command = JCmd[C.Name]["command"];
             for(std::string Base: JCmd[C.Name]["bases"])
                 C.Bases.push_back(Base);

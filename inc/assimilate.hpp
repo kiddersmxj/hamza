@@ -18,7 +18,7 @@ class Assimilate {
         Assimilate(std::vector<Command> &Cmds);
         ~Assimilate();
         double Compare(std::string One, std::string Two);
-        std::string Attribute(std::string Input);
+        int Attribute(std::string Input, std::string &CMD);
     private:
         std::vector<Command> Commands;
         Spacy::Spacy spacy;

@@ -29,7 +29,7 @@ double Assimilate::Compare(std::string One, std::string Two) {
     return Similarity;
 }
 
-std::string Assimilate::Attribute(std::string Input) {
+int Assimilate::Attribute(std::string Input, std::string &CMD) {
     k::Time Time;
 
     /* RemoveStopwords(Input); */
@@ -74,7 +74,7 @@ std::string Assimilate::Attribute(std::string Input) {
     }
     if(Highest == 0) {
         std::cout << "Unkown Command" << std::endl;
-        return "";
+        return -1;
     }
 
     Command C = Commands.at(CNum);
@@ -228,11 +228,11 @@ std::string Assimilate::Attribute(std::string Input) {
     /*           << " NooptF:" << PassingNoOptFlags.size() */ 
     /*           << " PassF: " << PassingFlags.size() << std::endl << std::endl; */
 
-    std::string CMD = ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags);
+    CMD = ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags);
     /* std::cout << "COMMAND: " << CMD << std::endl; */
 
     /* Time.Close(); */
-    return CMD;
+    return C.Read;
 }
 
 Spacy::Token Assimilate::GetRootClause(Spacy::Doc doc, std::string &Clause) {
