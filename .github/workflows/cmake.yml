@@ -21,6 +21,6 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@master
     - name: Install deps
-      run: git clone https://github.com/kiddersmxj/std-k; cd std-k; bash install.sh; cd ..
+      run: git clone https://github.com/kiddersmxj/std-k; cd std-k; bash install.sh; cd ..; sudo apt-get install libopus-dev; sudo apt-get install libsndfile1-dev
     - name: Build using CMake
       run: ./install.sh
