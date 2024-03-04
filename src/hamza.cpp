@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
     int HelpFlag = 0;
     int VersionFlag = 0;
     int FRFlag = 0;
-    int EncodeFlag = 0;
+    int AssimilateFlag = 0;
     std::string Parse = "";
     int opt;
 
@@ -18,14 +18,14 @@ int main(int argc, char** argv) {
         { "help", no_argument, &HelpFlag, 1 },
         { "version", no_argument, &VersionFlag, 1 },
         { "face-rec", no_argument, &FRFlag, 1 },
-        { "encode", no_argument, &EncodeFlag, 1 },
+        { "assimilate", no_argument, &AssimilateFlag, 1 },
         { "parse", required_argument, NULL, 'p' },
         { 0 }
     };
 
     // Infinite loop, to be broken when we are done parsing options
     while (1) {
-        opt = getopt_long(argc, argv, "hvfep:", Opts, 0);
+        opt = getopt_long(argc, argv, "hvfap:", Opts, 0);
 
         // A return value of -1 indicates that there are no more options
         if (opt == -1) {
@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
         case 'f':
             FRFlag = 1;
             break;
-        case 'e':
-            EncodeFlag = 1;
+        case 'a':
+            AssimilateFlag = 1;
             break;
         case 'p':
             Parse = optarg;
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
         DoFR();
     }
 
-    if(EncodeFlag) {
+    if(AssimilateFlag) {
         std::vector<Command> Commands;
         LoadCommands(Commands);
 
