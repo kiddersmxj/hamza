@@ -40,6 +40,7 @@ target_sources(hamza
     PRIVATE src/child.cpp
     PRIVATE src/assimilate.cpp
     PRIVATE src/execute.cpp
+    PRIVATE src/database.cpp
 )
 
 find_package(std-k REQUIRED)
