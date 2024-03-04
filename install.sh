@@ -42,6 +42,7 @@ fi
 
 if [[ $1 != "" ]]; then
     ARGS="-D$1"
+    echo "ARGS:$ARGS"
 fi
 
 cp -r commands $HamzaDir
