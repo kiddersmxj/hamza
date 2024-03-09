@@ -15,7 +15,7 @@ Commands::Commands(Spacy::Spacy spacy, Spacy::Nlp nlp) : spacy(spacy), nlp(nlp) 
 }
 
 void Commands::Create() {
-    /* Commands Commands; */
+    // Creates a command for each file found (each cmd needs its own file)
     for (const auto & File : fs::directory_iterator(CommandsDir)) {
         // Print file locations
         /* std::cout << File.path() << std::endl; */
@@ -24,6 +24,7 @@ void Commands::Create() {
 
         JCommand C;
 
+        // This section sets up a struct called JCommand C that then populates our actual Commands matrix
         for(nlohmann::ordered_json::iterator it = JCmd.begin(); it != JCmd.end(); ++it) {
             C.Name = it.key();
             C.Index = JCmd[C.Name]["index"]; // Not used or currently reliable
@@ -38,8 +39,6 @@ void Commands::Create() {
                     A.push_back(a);
                 C.Args.push_back(A);
             }
-            /* std::cout << "\n---" << C.Name << "---" << std::endl */ 
-            /*     << "options:" << std::endl; */
 
             for(auto Options: JCmd[C.Name]["options"]) {
                 /* k::VPrint(Options); */
@@ -56,20 +55,14 @@ void Commands::Create() {
                 C.DefaultFlags.push_back(DefaultFlag);
         }
 
+        // Begin main matrix population
+        // Adds the command bases
         int i(0);
-        // Could porbably optimise by iterating through args first - test
-        /* std::cout << "-------------" << std::endl */
-        /*     << "bases:" << std::endl; */
         std::vector<std::string> Bases;
         for(auto Base: C.Bases) {
-            /* std::cout << i << "-" << Base << std::endl; */
             Bases.push_back(Base);
             i++;
         }
-
-        /* std::cout << "|-------------" << std::endl; */
-        /* k::VPrint(Bases); */
-        /* std::cout << "|-------------" << std::endl; */
 
         int j(0);
         std::vector<ArgGroup> CreatedArgs;
@@ -78,16 +71,13 @@ void Commands::Create() {
 
             // Vector for storing possible options
             std::vector<std::string> Opts;
+            // Gets the actual option from JCommand, eg. optarg, listarg, etc...
             std::string Option = C.Options.at(j).at(0);
 
-            std::cout << "F: " << C.Flags.at(j) << std::endl;
-            
-            // Check the option and parse it (optarg, listarg, '.')
-            /* std::cout << Option << std::endl; */
+            // Check the option and parse it (optarg, listarg, '.', etc...)
             if(Option == "listarg") {
-                /* Opts.push_back("listarg"); */
-
-                //not working properly rn
+                // Runs the arg flag with the list arg to get possible options
+                // Need to work on if list is dependent on previous flag eg open -p optarg -f list
                 std::string CMD = C.Command + " " + C.Flags.at(j) + " list";
                 Child CheckListarg(CMD.c_str());
                 while(!CheckListarg.QuestionExit()) {
@@ -95,7 +85,6 @@ void Commands::Create() {
                 }
                 Opts.pop_back(); // Remove EXIT (last return from child.read()
             } else if(Option == "optarg") {
-                // Add tag to grab words after key word
                 Opts.push_back("optarg");
             } else if(Option == ".") {
                 Opts.push_back(".");
@@ -119,24 +108,12 @@ void Commands::Create() {
 
                     //need to add ability for args to not be exclusive (open on tag and destroy window eg)
 
-                    /* std::cout << "CREATDA: " << CreatedA.String << std::endl; */
-                    /* CreatedArg.push_back(CreatedA); */
                     ArgGroup.Args.push_back(CreatedA);
                 }
-                /* for(auto tmp: CreatedArg) { */
-                /*     std::cout << "=====" << tmp.String << "=======" << std::endl; */
-                /*     std::cout << "=====" << tmp.OptionType << "=======" << std::endl; */
-                /* } */
                 CreatedArgs.push_back(ArgGroup);
             }
             j++;
         }
-        /* for(auto tmp: CreatedArgs) { */
-        /*     for(auto t: tmp) { */
-        /*         std::cout << "++++++++ " << t.String << std::endl; */
-        /*     } */
-        /* } */
-        
         Add(C.Name, CreatedArgs, Bases);
     }
 
@@ -152,22 +129,19 @@ void Commands::Create() {
         for(auto ArgGroup: C.Args) {
             std::cout << "Arg: " << ArgGroup.Base << " (" << ArgGroup.OptionType << ") " << ArgGroup.BaseFlag << "\n";
             for(auto Arg: ArgGroup.Args) {
-                /* std::cout << "Arg: (" << Arg.at(0).OptionType << ")\n"; */
-                /* for(auto A: Arg.String) { */
-                    std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl;
-                /* } */
+                std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl;
             }
         }
     }
 
 }
 
-// the heirachy goes Args-|
-//                        |-Arg-|-A-A-A-A
-//                        |       |
-//                        |       |-Doc-Flag-String-OptionType
-//                        |     
-//                        |-Arg-|-A-A-A-A
+// the heirachy does not goes Args--|
+//                                  |-Arg-|-A-A-A-A
+//                                  |     |
+//                                  |     |-Doc-Flag-String-OptionType
+//                                  |     
+//                                  |-Arg-|-A-A-A-A
 void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases) {
     Command Command = { .Name = Name,.Bases = Bases, .Args = Args };
     CommandsMaster.push_back(Command);
