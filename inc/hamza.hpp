@@ -4,7 +4,7 @@
 #include "config.hpp"
 #include "child.hpp"
 #include "assimilate.hpp"
-#include "command.hpp"
+#include "commands.hpp"
 #include "execute.hpp"
 
 #include <std-k.hpp>
@@ -22,7 +22,7 @@ void Usage(std::string Message);
 void PrintVersion();
 void FRInit();
 void DoFR();
-void LoadCommands(std::vector<Command> &Commands);
+void LoadCommands(std::vector<JCommand> &Commands);
 /* json Merge(const json &a, const json &b); */
 
 #endif

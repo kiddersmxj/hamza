@@ -5,7 +5,7 @@
         "bases": [ "create project", "create program", "create" ],
         "args": {
             "name": [ "name", "named", "called" ],
-            "type": [ "type" ]
+            "type": [ "type", "of type" ]
         },
         "options": {
             "name": [ "optarg" ],
@@ -15,26 +15,5 @@
         "defaults": "-c",
         "confirm": false,
         "read": 1
-    },
-    "add": {
-        "command": "create",
-        "index": 1,
-        "bases": [ "add program", "add file", "add" ],
-        "args": {
-            "name": [ "name", "named", "called" ],
-            "type": [ "type" ],
-            "class": [ "class" ],
-            "struct": [ "struct" ]
-        },
-        "options": {
-            "name": [ "optarg" ],
-            "type": [ "listarg" ],
-            "class": [ "." ],
-            "struct": [ "." ]
-        },
-        "flags": [ "-n", "-t", "-C", "-S" ],
-        "defaults": "-a",
-        "confirm": false,
-        "read": 1
-     }
+    }
 }

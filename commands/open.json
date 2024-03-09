@@ -17,7 +17,7 @@
             "here": [ "." ],
             "destroy": [ "." ]
         },
-        "flags": [ "-p", "-f", "-r" ],
+        "flags": [ "-p", "-f", "-r", "-t", "-d" ],
         "defaults": "",
         "confirm": false,
         "read": 1

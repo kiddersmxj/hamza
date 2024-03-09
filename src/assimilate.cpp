@@ -2,17 +2,18 @@
 #include <spacy/doc.h>
 #include <vector>
 
-Assimilate::Assimilate(std::vector<Command> &Cmds) : spacy(), \
-                                        nlp(spacy.load("en_core_web_md")), \
-                                        Commands(Cmds) {
-    for(Command &C: Commands) {
-        std::vector<Spacy::Doc> TmpDocs;
-        for(std::string &B: C.Bases) {
-            /* std::cout << "parse:" << C.Name << std::endl; */
-            TmpDocs.push_back(nlp.parse(B));
-        }
-        C.BaseDocs = TmpDocs;
-    }
+Assimilate::Assimilate() : spacy(), nlp(spacy.load("en_core_web_md")) {
+    class Commands Commands(spacy, nlp);
+
+
+    /* for(JCommand &C: Commands) { */
+    /*     std::vector<Spacy::Doc> TmpDocs; */
+    /*     for(std::string &B: C.Bases) { */
+    /*         /1* std::cout << "parse:" << C.Name << std::endl; *1/ */
+    /*         TmpDocs.push_back(nlp.parse(B)); */
+    /*     } */
+    /*     C.BaseDocs = TmpDocs; */
+    /* } */
 }
 
 Assimilate::~Assimilate() {
@@ -31,208 +32,34 @@ double Assimilate::Compare(std::string One, std::string Two) {
 
 int Assimilate::Attribute(std::string Input, std::string &CMD) {
     k::Time Time;
+    std::vector<std::string> Commands(8);
+    int n(0);
+    Commands.at(n) = "lights on";
+    Commands.at(++n) = "lights off";
+    Commands.at(++n) = "create new program";
+    Commands.at(++n) = "add new program";
+    Commands.at(++n) = "take a photo";
+    Commands.at(++n) = "delete a photo";
+    Commands.at(++n) = "create named cpp";
+    Commands.at(++n) = "add project cpp";
 
-    /* RemoveStopwords(Input); */
-    auto In = nlp.parse(Input);
+    /* k::VPrint(Commands); */
 
-    int Index;
-    int CNum;
-    std::string Name;
-    double Highest = 0;
-    std::string RootClause;
-    std::string RootBase;
-    std::string RootBaseActual;
-    std::vector<std::string> PassingArgs;
-    std::vector<std::string> PassingFlags;
-    Spacy::Token RootToken = GetRootClause(In, RootClause);
-    std::vector<std::string> Clauses;
-    std::vector<Spacy::Token> Tokens = GetClauses(In, Clauses);
-
-    /* for(std::string Clause: Clauses) { // Could take a while, maybe just use Clauses.at(0) - or clause with root if slow! */
-    /* std::cout << "For: " << RootClause << std::endl; */
-    auto doc = nlp.parse(RootClause);
-    int t(0);
-    for(Command C: Commands) {
-        int b(0);
-        for(Spacy::Doc B: C.BaseDocs) {
-            double Sim = doc.similarity(B);
-            /* std::cout << C.Name << " " << Sim << std::endl; */
-            if(Sim > Highest && Sim > MinSim) {
-                Highest = Sim;
-                Index = C.Index;
-                Name = C.Name;
-                RootBaseActual = B.text();
-                RootBase = Commands.at(t).Bases.at(b);
-                CNum = t;
-                /* std::cout << "RB: " << RootBase << " RBA: " << RootBaseActual << std::endl; */
-            }
-            if(Highest == 1) break;
-            b++;
+    double Highest(0);
+    int Index(0);
+    int i(0);
+    for(std::string C: Commands) {
+        double Similarity = Compare(Input, C);
+        std::cout << C << " : " << Similarity << std::endl;
+        if(Similarity > Highest) {
+            Highest = Similarity;
+            Index = i;
         }
-        if(Highest == 1) break;
-        t++;
+        i++;
     }
-    if(Highest == 0) {
-        std::cout << "Unkown Command" << std::endl;
-        return -1;
-    }
+    std::cout << std::endl << Highest << " : " << Commands.at(Index) << std::endl;
 
-    Command C = Commands.at(CNum);
-    /* std::cout << "Using program: " << C.Name */
-              /* << std::endl << "Clauses:" << std::endl; */
-    /* k::VPrint(Clauses); */
-    /* std::cout << "tokens:\n"; */
-    for(auto t: Tokens)
-        /* std::cout << t.text() << std::endl; */
-    /* std::cout << std::endl; */
-
-    bool Scanned = 0;
-    int c(0);
-    for(std::string Clause: Clauses) {
-        /* std::cout << "\nnew clause\n\n"; */
-        /* if(Clause == RootClause) { */
-        /*     RemoveBase(RootBase, Clause); */
-        /* } */
-        if(k::RemoveWhitespace(Clause) != "") {
-            auto ClauseDoc = nlp.parse(Clause);
-            int t(0);
-            double ArgHighest = 0;
-            int ArgIndexTop = 0;
-            int ArgIndexBtm = 0;
-            for(std::vector<std::string> Arg: C.Args) {
-                int b(0);
-                if(C.Options.at(t).at(0) == "optarg") {
-                    /* std::cout << "this has optarg" << std::endl; */
-                    for(std::string ArgBase: Arg) {
-                        double Sim = ClauseDoc.similarity(nlp.parse(ArgBase));
-                        std::cout << "ArgNo: " << t << "/" << b << " Clause: \"" 
-                                  << Clause << "\" AB: \"" 
-                                  << ArgBase <<  "\" sim: " << Sim << std::endl;
-                        if(Sim > MinSim) {
-                            if(Sim > ArgHighest) {
-                                ArgHighest = Sim;
-                                ArgIndexTop = t;
-                                ArgIndexBtm = b;
-                            }
-                        }
-                    }
-                    b++;
-
-                } else {
-                }
-
-                t++;
-            }
-
-            if(ArgHighest > 0) {
-                /* std::cout << std::endl << "Clause: \"" << Clause << "\", Arg: " */ 
-                          /* << C.Args.at(ArgIndexTop).at(ArgIndexBtm) */ 
-                          /* << ", Score: " << ArgHighest << ", top: " << ArgIndexTop */ 
-                          /* << ", btm: " << ArgIndexBtm << std::endl; */
-                if(C.Options.at(ArgIndexTop).at(0) == "optarg") {
-                    /* std::cout << "optarg!" << std::endl; */
-                    if(Tokens.at(c).children().size() == 1) {
-                        PassingArgs.push_back(Tokens.at(c).children().at(0).text());
-                        PassingFlags.push_back(C.Flags.at(ArgIndexTop));
-                    } else { // Not a real fix TODO make better
-                        PassingArgs.push_back(Tokens.at(c).children().at(0).text());
-                        PassingFlags.push_back(C.Flags.at(ArgIndexTop));
-                    }
-                }
-                /* std::cout << std::endl; */
-            }
-        }
-        c++;
-    }
-
-    /* std::cout << "removing rootbase: " << RootBaseActual << " in: " << Input << std::endl; */
-    std::vector<std::string> Bs;
-    k::SplitString(RootBase, ' ', Bs, 1);
-    /* std::cout << "Bs:\n"; */
-    /* k::VPrint(Bs); */
-    for(std::string B: Bs) {
-        size_t found = Input.find(B);
-        if (found != std::string::npos) {
-            Input.erase(found, B.length());
-        }
-    }
-    size_t found = Input.find(C.Command);
-    if (found != std::string::npos) {
-        Input.erase(found, C.Command.length());
-    }
-    /* std::cout << "Input now: " << Input << std::endl; */
-    Input = RemoveExtraWhitespace(Input);
-    /* std::cout << "Input now: " << Input << std::endl; */
-
-    t = 0;
-    std::vector<Spacy::Doc> WordDocs;
-    std::vector<std::string> Words;
-    std::vector<std::string> PassingNoOptFlags;
-    k::SplitString(Input, ' ', Words, 1);
-    /* k::VPrint(Words); */
-    for(std::string Word: Words)
-        WordDocs.push_back(nlp.parse(Word));
-    for(auto Opt: C.Options) {
-        double OptHighest = 0;
-        int OptIndexTop = 0;
-        int OptIndexBtm = 0;
-        if(C.Options.at(t).at(0) == "optarg") {
-        } else if(Opt.at(0) == ".") {
-            double Sim = FindInWords(C.Args.at(t).at(0), WordDocs);
-            if(Sim > HighSim) {
-                /* std::cout << C.Args.at(t).at(0) << " wins with = " << HighSim << std::endl; */
-                PassingNoOptFlags.push_back(C.Flags.at(t));
-            }
-                // Here is oportune to add possible options to request confirmation
-        } else if(C.Options.at(t).at(0) == "listarg") {
-            for(std::string Opt: GetListArgs(t, C, ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags))) {
-                /* std::cout << "o: " << Opt << std::endl; */
-                std::string Return;
-                double Sim = FindInWords(Opt, WordDocs, Return);
-                /* std::cout << "sim: " << Sim << std::endl; */
-                if(Sim > HighSim) {
-                    /* std::cout << C.Args.at(t).at(0) << " wins with = " << HighSim << std::endl; */
-                    PassingFlags.push_back(C.Flags.at(t));
-                    PassingArgs.push_back(Opt);
-                    /* std::cout << "removing: " << Opt << std::endl; */
-                    WordDocs.at(k::VGetIndex(Words, Return)) = nlp.parse(OptUsed);
-                    /* std::cout << "w: " << Words.at(t) << " wd: -" \ */
-                              /* << WordDocs.at(t).text() << "-" << std::endl; */
-                }
-            }
-        } else {
-            for(std::string Opt: C.Options.at(t)) {
-                std::string Arg;
-                double Sim = FindInWords(Opt, WordDocs, Arg);
-                if(Sim > HighSim) {
-                    /* std::cout << Opt << " wins with = " << HighSim << std::endl; */
-                    /* PassingNoOptFlags.push_back(C.Flags.at(t)); */
-                    PassingArgs.push_back(Arg);
-                    PassingFlags.push_back(C.Flags.at(t));
-                    break; // might be a bad idea
-                } // Here is oportune to add possible options to request confirmation
-            }
-        }
-        t++;
-    }
-
-    /* std::cout << "Program: \"" << C.Name << "\"" << std::endl << "with args:" << std::endl; */
-    /* k::VPrint(PassingArgs); */
-    /* std::cout << "with arg flags:" << std::endl; */
-    /* k::VPrint(PassingFlags); */
-    /* std::cout << "with no arg flags:" << std::endl; */
-    /* k::VPrint(PassingNoOptFlags); */
-
-    /* std::cout << std::endl */
-    /*           << "Passargs: " << PassingArgs.size() */ 
-    /*           << " NooptF:" << PassingNoOptFlags.size() */ 
-    /*           << " PassF: " << PassingFlags.size() << std::endl << std::endl; */
-
-    CMD = ParseCommand(C, PassingArgs, PassingFlags, PassingNoOptFlags);
-    /* std::cout << "COMMAND: " << CMD << std::endl; */
-
-    /* Time.Close(); */
-    return C.Read;
+    return 0;
 }
 
 Spacy::Token Assimilate::GetRootClause(Spacy::Doc doc, std::string &Clause) {
@@ -386,7 +213,7 @@ double Assimilate::FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc,
     return Highest;
 }
 
-std::string Assimilate::ParseCommand(Command C, std::vector<std::string> PassingArgs, \
+std::string Assimilate::ParseCommand(JCommand C, std::vector<std::string> PassingArgs, \
                                      std::vector<std::string> PassingFlags, \
                                      std::vector<std::string> PassingNoOptFlags) {
     std::string CMD = C.Command;
@@ -399,7 +226,7 @@ std::string Assimilate::ParseCommand(Command C, std::vector<std::string> Passing
     return CMD;
 }
 
-std::vector<std::string> Assimilate::GetListArgs(int t, Command C, std::string Cmd) {
+std::vector<std::string> Assimilate::GetListArgs(int t, JCommand C, std::string Cmd) {
     std::vector<std::string> Args;
     Cmd = Cmd + " " + C.Flags.at(t) + " list";
     /* std::cout << Cmd << std::endl; */
