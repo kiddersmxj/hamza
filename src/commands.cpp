@@ -124,27 +124,27 @@ void Commands::Create() {
 
     // Very useful debug cout
 
-    std::cout << "-----------------------------\n";
-    for(auto C: GetCommandsMaster()) {
-        std::cout << "\n--------" << C.Name << "--------\n";
-        /* std::cout << C.BaseSentence.String << std::endl; */
-        for(auto Sen: C.BaseSentences) {
-            std::cout << Sen.String << std::endl;
-        }
-        std::cout << "\nBases\n";
-        for(auto B: C.Bases) {
-            std::cout << "\t" << B << std::endl;
-        }
-        std::cout << std::endl;
-        for(auto ArgGroup: C.Args) {
-            std::cout << "ArgGroup: " << ArgGroup.Base << " (" << ArgGroup.OptionType << ") " << ArgGroup.BaseFlag << "\n";
-            for(auto Subgroup: ArgGroup.SubGroup) {
-                for(auto Arg: Subgroup.Args) {
-                    std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl;
-                }
-            }
-        }
-    }
+/*     std::cout << "-----------------------------\n"; */
+/*     for(auto C: GetCommandsMaster()) { */
+/*         std::cout << "\n--------" << C.Name << "--------\n"; */
+/*         /1* std::cout << C.BaseSentence.String << std::endl; *1/ */
+/*         for(auto Sen: C.BaseSentences) { */
+/*             std::cout << Sen.String << std::endl; */
+/*         } */
+/*         std::cout << "\nBases\n"; */
+/*         for(auto B: C.Bases) { */
+/*             std::cout << "\t" << B << std::endl; */
+/*         } */
+/*         std::cout << std::endl; */
+/*         for(auto ArgGroup: C.Args) { */
+/*             std::cout << "ArgGroup: " << ArgGroup.Base << " (" << ArgGroup.OptionType << ") " << ArgGroup.BaseFlag << "\n"; */
+/*             for(auto Subgroup: ArgGroup.SubGroup) { */
+/*                 for(auto Arg: Subgroup.Args) { */
+/*                     std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl; */
+/*                 } */
+/*             } */
+/*         } */
+/*     } */
 
 }
 
@@ -157,8 +157,29 @@ void Commands::Create() {
 void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases, std::vector<std::string> DefaultFlags) {
     // Creating base sentences
     std::vector<std::string> SentenceBases;
+    std::vector<std::vector<std::string>> ComplexSentences;
     for(ArgGroup ArgGroup: Args) {
         SentenceBases.push_back(ArgGroup.Base);
+
+        // Complex Sentences
+        std::vector<std::string> Section;
+        for(auto SubGroup: ArgGroup.SubGroup) {
+            std::cout << "SubGroup: " << SubGroup.Base << " " << SubGroup.OptionType << std::endl;
+            if(SubGroup.OptionType == "optarg") {
+                Section.push_back(SubGroup.Args.at(0).String);
+                std::cout << "\t" << SubGroup.Args.at(0).String << std::endl;
+            } else if(SubGroup.OptionType == "listarg") {
+                for(auto Arg: SubGroup.Args) {
+                    Section.push_back(Arg.String);
+                    std::cout << "\t" << Arg.String << std::endl;
+                }
+            } else if(SubGroup.OptionType == ".") {
+                Section.push_back(SubGroup.Args.at(0).String);
+                std::cout << "\t" << SubGroup.Args.at(0).String << std::endl;
+            } else {}
+        ComplexSentences.push_back(Section);
+        }
+
     }
     /* std::vector<std::string> CurrentCombination; */
     std::vector<std::string> Combinations = GetAllCombinations(SentenceBases);
@@ -170,27 +191,14 @@ void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std
         BaseSentences.push_back(Sentence);
     }
 
-    /* // Create complex sentences */
-    /* std::vector<std::vector<std::string>> Sentences; */
-    /* for(ArgGroup ArgGroup: Args) { */
-    /*     std::vector<std::string> Section; */
-    /*     for(auto SubGroup: ArgGroup.SubGroup) { */
-    /*         if(SubGroup.OptionType == "optarg") { */
-    /*             Section.push_back(SubGroup.Args.at(0).String); */
-    /*         } else if(SubGroup.OptionType == "listarg") { */
-    /*             for(auto Arg: SubGroup.Args) { */
-    /*                 Section.push_back(Arg.String); */
-    /*             } */
-    /*         } else if(SubGroup.OptionType == ".") { */
-    /*             Section.push_back(SubGroup.Args.at(0).String); */
-    /*         } else {} */
-    /*     } */
-    /*     std::cout << "Section:\n"; */
-    /*     for(auto S: Section) { */
-    /*         std::cout << S << std::endl; */
-    /*     } */
-    /*     Sentences.push_back(Section); */
-    /* } */
+    std::cout << "\n---------\n";
+    for(std::vector<std::string> S: ComplexSentences) {
+        std::cout << "new\n";
+        for(std::string s: S) {
+            std::cout << "\t" << s << std::endl;
+        }
+    }
+    std::cout << "---------\n";
 
     /* for(auto O: GetAllMatrixCombinations(Sentences)) { */
     /*     std::cout << O << std::endl; */
