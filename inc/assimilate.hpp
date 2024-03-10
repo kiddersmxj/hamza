@@ -15,12 +15,13 @@
 
 class Assimilate {
     public:
-        Assimilate();
+        Assimilate(Commands Commands, Spacy::Spacy &spacy, Spacy::Nlp &nlp);
         ~Assimilate();
         double Compare(std::string One, std::string Two);
         int Attribute(std::string Input, std::string &CMD);
     private:
-        std::vector<JCommand> Commands;
+        std::vector<JCommand> JCommands;
+        Commands Cmds;
         Spacy::Spacy spacy;
         Spacy::Nlp nlp;
         Spacy::Token GetRootClause(Spacy::Doc doc, std::string &Clause);

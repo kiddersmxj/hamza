@@ -34,9 +34,23 @@ typedef struct {
     std::string OptionType;
     std::string Base;
     std::string BaseFlag;
+} ArgSubGroup;
+typedef struct {
+    std::vector<ArgSubGroup> SubGroup;
+    std::string OptionType;
+    std::string Base;
+    std::string BaseFlag;
 } ArgGroup;
 typedef struct {
+    Spacy::Doc Doc;
+    std::string String;
+    std::string Command;
+    std::vector<std::pair<std::string, std::string>> Optargs;
+} Sentence;
+typedef struct {
     std::string Name;
+    std::vector<Sentence> BaseSentences;
+    std::vector<Sentence> Sentences;
     std::vector<std::string> Bases;
     std::vector<ArgGroup> Args;
 } Command;
@@ -45,16 +59,26 @@ class Commands {
     private:
         Spacy::Spacy spacy;
         Spacy::Nlp nlp;
+        std::vector<Sentence> Queue1;
+        std::vector<Sentence> Queue2;
     public:
         std::vector<Command> CommandsMaster;
-        Commands(Spacy::Spacy spacy, Spacy::Nlp nlp);
+        Commands(Spacy::Spacy &spacy, Spacy::Nlp &nlp);
         void Create();
-        void Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases);
+        void Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases, std::vector<std::string> DefaultFlags);
         Command GetCommand(std::string Name);
         Command GetCommand(int Index);
         std::vector<Command> GetCommandsMaster();
         ArgGroup GetCommandArgGroup(int X, int Y);
+        void CreateSentenceMatrix();
 };
+
+std::vector<std::string> GetAllMatrixCombinations(const std::vector<std::vector<std::string>>& input);
+void GenerateMatrixCombinations(const std::vector<std::vector<std::string>>& input, std::vector<std::string>& current \
+        , std::vector<std::string>& result, size_t index = 0);
+void GenerateCombinations(const std::vector<std::string>& strings, int index, \
+        std::vector<std::string>& currentCombination, std::vector<std::vector<std::string>>& result);
+std::vector<std::string> GetAllCombinations(const std::vector<std::string>& strings);
 
 #endif
 

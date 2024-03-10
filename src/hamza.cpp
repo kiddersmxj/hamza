@@ -76,8 +76,10 @@ int main(int argc, char** argv) {
 
     if(TestFlag) {
         k::Time Time;
-        Assimilate Assimilate;
-        /* Commands Commands; */
+        Spacy::Spacy spacy;
+        Spacy::Nlp nlp(spacy.load("en_core_web_md"));
+        Commands Commands(spacy, nlp);
+        Assimilate Assimilate(Commands, spacy, nlp);;
         std::cout << Time.Close() << "ms" << std::endl;
         /* Commands.Create(); */
 
@@ -90,60 +92,60 @@ int main(int argc, char** argv) {
         DoFR();
     }
 
-    /* if(AssimilateFlag) { */
-    /*     k::Time Time; */
+    if(AssimilateFlag) {
+        k::Time Time;
+        Spacy::Spacy spacy;
+        Spacy::Nlp nlp(spacy.load("en_core_web_md"));
+        Commands Commands(spacy, nlp);
+        Assimilate Assimilate(Commands, spacy, nlp);;
+        std::cout << Time.Close() << "ms" << std::endl;
 
-    /*     std::vector<JCommand> Commands; */
-    /*     /1* LoadCommands(Commands); *1/ */
-    /*     Assimilate Meaning(Commands); */
-    /*     std::cout << Time.Close() << "ms" << std::endl; */
-
-    /*     if(Parse == "") { */
-    /*         /1* std::cout << Meaning.Compare("called", "with the name of") << std::endl; *1/ */
-    /*         /1* std::cout << Meaning.Attribute("turn off the lights") << std::endl; *1/ */
-    /*         /1* std::cout << Meaning.Attribute("create a cpp project called assimilate") << std::endl; *1/ */
-    /*         /1* std::cout << Meaning.Attribute("create a cpp program named assimilate") << std::endl; *1/ */
-    /*         /1* std::cout << Meaning.Attribute("add a cpp class called assimilate") << std::endl; *1/ */
-    /*         /1* std::cout << Meaning.Attribute("add a class file named assimilate of type cpp") << std::endl; *1/ */
-    /*         std::string Corpus; */
-    /*         std::cout << "Enter corpus:" << std::endl; */
-    /*         getline(std::cin, Corpus); */
-    /*         while(Corpus != "") { */
-    /*             std::string CMD; */
-    /*             int Read = Meaning.Attribute(Corpus, CMD); */
-    /*             if(Read != -1) { */
-    /*                 std::cout */
-    /*                         << std::endl */
-    /*                         << "*************************" << std::endl */
-    /*                         << CMD << std::endl */
-    /*                         << "*************************" << std::endl */
-    /*                         << std::endl; */
-/* #ifndef TEST */
-    /*                 if(Read == 1) Execute Execute(CMD); */
-    /*                 if(Read == 0) Child Child(CMD.c_str()); */
-/* #endif */
-    /*             } */
-    /*             std::cout << std::endl << "Enter corpus:" << std::endl; */
-    /*             getline(std::cin, Corpus); */
-    /*         } */
-    /*     } else  { */
-    /*         std::string CMD; */
-    /*         int Read = Meaning.Attribute(Parse, CMD); */
-    /*         if(Read != -1) { */
-    /*             std::cout */
-    /*                     << std::endl */
-    /*                     << "*************************" << std::endl */
-    /*                     << CMD << std::endl */
-    /*                     << "*************************" << std::endl */
-    /*                     << std::endl; */
-/* #ifndef TEST */
-    /*             if(Read == 1) Execute Execute(CMD); */
-    /*             if(Read == 0) Child Child(CMD.c_str()); */
-/* #endif */
-    /*         } */
-    /*     } */
-    /*     return EXIT_SUCCESS; */
-    /* } */
+        if(Parse == "") {
+            /* std::cout << Meaning.Compare("called", "with the name of") << std::endl; */
+            /* std::cout << Meaning.Attribute("turn off the lights") << std::endl; */
+            /* std::cout << Meaning.Attribute("create a cpp project called assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("create a cpp program named assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("add a cpp class called assimilate") << std::endl; */
+            /* std::cout << Meaning.Attribute("add a class file named assimilate of type cpp") << std::endl; */
+            std::string Corpus;
+            std::cout << "Enter corpus:" << std::endl;
+            getline(std::cin, Corpus);
+            while(Corpus != "") {
+                std::string CMD;
+                int Read = Assimilate.Attribute(Corpus, CMD);
+                if(Read != -1) {
+                    std::cout
+                            << std::endl
+                            << "*************************" << std::endl
+                            << CMD << std::endl
+                            << "*************************" << std::endl
+                            << std::endl;
+#ifndef TEST
+                    if(Read == 1) Execute Execute(CMD);
+                    if(Read == 0) Child Child(CMD.c_str());
+#endif
+                }
+                std::cout << std::endl << "Enter corpus:" << std::endl;
+                getline(std::cin, Corpus);
+            }
+        } else  {
+            std::string CMD;
+            int Read = Assimilate.Attribute(Parse, CMD);
+            if(Read != -1) {
+                std::cout
+                        << std::endl
+                        << "*************************" << std::endl
+                        << CMD << std::endl
+                        << "*************************" << std::endl
+                        << std::endl;
+#ifndef TEST
+                if(Read == 1) Execute Execute(CMD);
+                if(Read == 0) Child Child(CMD.c_str());
+#endif
+            }
+        }
+        return EXIT_SUCCESS;
+    }
 
     Usage();
     return EXIT_FAILURE;

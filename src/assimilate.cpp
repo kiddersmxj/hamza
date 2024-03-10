@@ -2,9 +2,8 @@
 #include <spacy/doc.h>
 #include <vector>
 
-Assimilate::Assimilate() : spacy(), nlp(spacy.load("en_core_web_md")) {
-    class Commands Commands(spacy, nlp);
-
+Assimilate::Assimilate(class Commands Commands, Spacy::Spacy &spacy, Spacy::Nlp &nlp) : \
+        Cmds(Commands), spacy(spacy), nlp(nlp) {
 
     /* for(JCommand &C: Commands) { */
     /*     std::vector<Spacy::Doc> TmpDocs; */
@@ -17,7 +16,7 @@ Assimilate::Assimilate() : spacy(), nlp(spacy.load("en_core_web_md")) {
 }
 
 Assimilate::~Assimilate() {
-    for(auto &C: Commands)
+    for(auto &C: JCommands)
         C.BaseDocs.clear();
 }
 
@@ -31,33 +30,42 @@ double Assimilate::Compare(std::string One, std::string Two) {
 }
 
 int Assimilate::Attribute(std::string Input, std::string &CMD) {
-    k::Time Time;
-    std::vector<std::string> Commands(8);
-    int n(0);
-    Commands.at(n) = "lights on";
-    Commands.at(++n) = "lights off";
-    Commands.at(++n) = "create new program";
-    Commands.at(++n) = "add new program";
-    Commands.at(++n) = "take a photo";
-    Commands.at(++n) = "delete a photo";
-    Commands.at(++n) = "create named cpp";
-    Commands.at(++n) = "add project cpp";
-
+    /* k::Time Time; */
+    /* std::vector<std::string> Commands(10); */
+    /* int n(0); */
+    /* Commands.at(n) = "lights on"; */
+    /* Commands.at(++n) = "lights off"; */
+    /* Commands.at(++n) = "create new program"; */
+    /* Commands.at(++n) = "add new program"; */
+    /* Commands.at(++n) = "take a photo"; */
+    /* Commands.at(++n) = "delete a photo"; */
+    /* Commands.at(++n) = "create named cpp"; */
+    /* Commands.at(++n) = "add project cpp"; */
+    /* Commands.at(++n) = "create program type new destroy"; */
+    /* Commands.at(++n) = "create program destroy new type"; */
     /* k::VPrint(Commands); */
 
     double Highest(0);
-    int Index(0);
+    std::string Name;
     int i(0);
-    for(std::string C: Commands) {
-        double Similarity = Compare(Input, C);
-        std::cout << C << " : " << Similarity << std::endl;
-        if(Similarity > Highest) {
-            Highest = Similarity;
-            Index = i;
+    for(auto C: Cmds.GetCommandsMaster()) {
+        int j(0);
+        for(auto S: C.BaseSentences) {
+            // Make this rely on an already created doc
+            double Similarity = Compare(Input, S.String);
+            if(Similarity > Highest) {
+                Name = C.Name;
+            }
+            j++;
         }
         i++;
     }
-    std::cout << std::endl << Highest << " : " << Commands.at(Index) << std::endl;
+    for(auto C: Cmds.GetCommandsMaster()) {
+        if(C.Name == Name) {
+            C.Sentences;
+        }
+    }
+    CMD = Name;
 
     return 0;
 }

@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 #define NLOHMANN_JSON_PRESERVE_ORDER
 using json = nlohmann::json_abi_v3_11_2::json;
 
-Commands::Commands(Spacy::Spacy spacy, Spacy::Nlp nlp) : spacy(spacy), nlp(nlp) {
+Commands::Commands(Spacy::Spacy &spacy, Spacy::Nlp &nlp) : spacy(spacy), nlp(nlp) {
     Create();
 }
 
@@ -67,7 +67,7 @@ void Commands::Create() {
         int j(0);
         std::vector<ArgGroup> CreatedArgs;
         for(auto Arg: C.Args) {
-            std::vector<::Arg> CreatedArg;
+            ArgGroup ArgGroup;
 
             // Vector for storing possible options
             std::vector<std::string> Opts;
@@ -93,43 +93,55 @@ void Commands::Create() {
                 Option = "else";
             }
 
+            // Define main aspects of ArgGroup
+            ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
+
             // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
-            // For optargs this will just be one Arg per ArgGroup
+            // For optargs this will just be one Arg per ArgSubGroup
             for(auto A: Arg) {
-                ArgGroup ArgGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
+                ArgSubGroup SubGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
                 for(auto O: Opts) {
                     std::string Output = A + " " + O;
 
-                    ::Arg CreatedA = { .Doc = nlp.parse(Output) };
-                    CreatedA.String = Output;
-                    CreatedA.OptionType = Option;
-                    CreatedA.Base = A;
-                    CreatedA.Flag = C.Flags.at(j) + " " + O;
+                    ::Arg Arg = { .OptionType = Option, .String = Output, \
+                        .Flag = C.Flags.at(j) + " " + O, .Base = A, .Doc = nlp.parse(Output) };
+                    /* CreatedA.String = Output; */
+                    /* CreatedA.OptionType = Option; */
+                    /* CreatedA.Base = A; */
+                    /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
 
                     //need to add ability for args to not be exclusive (open on tag and destroy window eg)
 
-                    ArgGroup.Args.push_back(CreatedA);
+                    SubGroup.Args.push_back(Arg);
                 }
-                CreatedArgs.push_back(ArgGroup);
+                ArgGroup.SubGroup.push_back(SubGroup);
             }
+            CreatedArgs.push_back(ArgGroup);
             j++;
         }
-        Add(C.Name, CreatedArgs, Bases);
+        Add(C.Name, CreatedArgs, Bases, C.DefaultFlags);
     }
 
     // Very useful debug cout
 
     std::cout << "-----------------------------\n";
     for(auto C: GetCommandsMaster()) {
-        std::cout << "\n--------" << C.Name << "--------\nBases:\n";
+        std::cout << "\n--------" << C.Name << "--------\n";
+        /* std::cout << C.BaseSentence.String << std::endl; */
+        for(auto Sen: C.BaseSentences) {
+            std::cout << Sen.String << std::endl;
+        }
+        std::cout << "\nBases\n";
         for(auto B: C.Bases) {
             std::cout << "\t" << B << std::endl;
         }
         std::cout << std::endl;
         for(auto ArgGroup: C.Args) {
-            std::cout << "Arg: " << ArgGroup.Base << " (" << ArgGroup.OptionType << ") " << ArgGroup.BaseFlag << "\n";
-            for(auto Arg: ArgGroup.Args) {
-                std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl;
+            std::cout << "ArgGroup: " << ArgGroup.Base << " (" << ArgGroup.OptionType << ") " << ArgGroup.BaseFlag << "\n";
+            for(auto Subgroup: ArgGroup.SubGroup) {
+                for(auto Arg: Subgroup.Args) {
+                    std::cout << "\t" << Arg.String << "\t\t\t (" << Arg.Flag << ")" << std::endl;
+                }
             }
         }
     }
@@ -142,8 +154,49 @@ void Commands::Create() {
 //                                  |     |-Doc-Flag-String-OptionType
 //                                  |     
 //                                  |-Arg-|-A-A-A-A
-void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases) {
-    Command Command = { .Name = Name,.Bases = Bases, .Args = Args };
+void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases, std::vector<std::string> DefaultFlags) {
+    // Creating base sentences
+    std::vector<std::string> SentenceBases;
+    for(ArgGroup ArgGroup: Args) {
+        SentenceBases.push_back(ArgGroup.Base);
+    }
+    /* std::vector<std::string> CurrentCombination; */
+    std::vector<std::string> Combinations = GetAllCombinations(SentenceBases);
+
+    std::vector<Sentence> BaseSentences;
+    for(const auto& Combination : Combinations) {
+        Sentence Sentence = { .Doc = nlp.parse(Bases.at(0) + " " + Combination), .String = Bases.at(0) + " " + Combination };
+        /* std::cout << Bases.at(0) << " " << Combination << std::endl; */
+        BaseSentences.push_back(Sentence);
+    }
+
+    /* // Create complex sentences */
+    /* std::vector<std::vector<std::string>> Sentences; */
+    /* for(ArgGroup ArgGroup: Args) { */
+    /*     std::vector<std::string> Section; */
+    /*     for(auto SubGroup: ArgGroup.SubGroup) { */
+    /*         if(SubGroup.OptionType == "optarg") { */
+    /*             Section.push_back(SubGroup.Args.at(0).String); */
+    /*         } else if(SubGroup.OptionType == "listarg") { */
+    /*             for(auto Arg: SubGroup.Args) { */
+    /*                 Section.push_back(Arg.String); */
+    /*             } */
+    /*         } else if(SubGroup.OptionType == ".") { */
+    /*             Section.push_back(SubGroup.Args.at(0).String); */
+    /*         } else {} */
+    /*     } */
+    /*     std::cout << "Section:\n"; */
+    /*     for(auto S: Section) { */
+    /*         std::cout << S << std::endl; */
+    /*     } */
+    /*     Sentences.push_back(Section); */
+    /* } */
+
+    /* for(auto O: GetAllMatrixCombinations(Sentences)) { */
+    /*     std::cout << O << std::endl; */
+    /* } */
+
+    Command Command = { .Name = Name, .BaseSentences = BaseSentences, .Bases = Bases, .Args = Args };
     CommandsMaster.push_back(Command);
 }
 
@@ -151,12 +204,12 @@ ArgGroup Commands::GetCommandArgGroup(int X, int Y) {
     return CommandsMaster.at(X).Args.at(Y);
 }
 
-Command Commands::GetCommand(std::string Name) {
-    Command C;
-    for(auto N: CommandsMaster) {
-    }
-    return C;
-}
+/* Command Commands::GetCommand(std::string Name) { */
+/*     Command C; */
+/*     for(auto N: CommandsMaster) { */
+/*     } */
+/*     return C; */
+/* } */
 
 Command Commands::GetCommand(int Index) {
     return CommandsMaster.at(Index);
@@ -164,6 +217,60 @@ Command Commands::GetCommand(int Index) {
 
 std::vector<Command> Commands::GetCommandsMaster() {
     return CommandsMaster;
+}
+
+std::vector<std::string> GetAllMatrixCombinations(const std::vector<std::vector<std::string>>& input) {
+    // Vector to hold all combinations
+    std::vector<std::string> Combinations;
+
+    // Call the function to generate combinations
+    std::vector<std::string> CurrentCombination;
+    GenerateMatrixCombinations(input, CurrentCombination, Combinations);
+    return Combinations;
+}
+
+// Function to recursively generate all combinations of strings
+void GenerateMatrixCombinations(const std::vector<std::vector<std::string>>& input, std::vector<std::string>& current \
+        , std::vector<std::string>& result, size_t index) {
+    // Base case: if we have processed all input vectors, add the current combination to result
+    if (index == input.size()) {
+        std::string combination;
+        for (const auto& str : current) {
+            combination += str + " ";
+        }
+        combination.pop_back(); // Remove the extra space at the end
+        result.push_back(combination);
+        return;
+    }
+
+    // Recursively generate combinations for the current input vector
+    for (const auto& str : input[index]) {
+        current.push_back(str);
+        GenerateMatrixCombinations(input, current, result, index + 1);
+        current.pop_back(); // Backtrack to explore other combinations
+    }
+}
+
+void GenerateCombinations(const std::vector<std::string>& strings, int index, std::string currentCombination, std::vector<std::string>& result) {
+    if (index == strings.size()) {
+        result.push_back(currentCombination);
+        return;
+    }
+
+    // Case 1: Exclude the current string
+    GenerateCombinations(strings, index + 1, currentCombination, result);
+
+    // Case 2: Include the current string
+    if (!currentCombination.empty()) {
+        currentCombination += " "; // Add a space if not the first string
+    }
+    GenerateCombinations(strings, index + 1, currentCombination + strings[index], result);
+}
+
+std::vector<std::string> GetAllCombinations(const std::vector<std::string>& strings) {
+    std::vector<std::string> result;
+    GenerateCombinations(strings, 0, "", result);
+    return result;
 }
 
 // Copyright (c) 2023, Maxamilian Kidd-May
