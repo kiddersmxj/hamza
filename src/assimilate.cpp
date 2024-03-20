@@ -45,6 +45,7 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
     /* Commands.at(++n) = "create program destroy new type"; */
     /* k::VPrint(Commands); */
 
+    Spacy::Doc D = nlp.parse(Input);
     double Highest(0);
     std::string Name;
     int i(0);
@@ -52,20 +53,58 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
         int j(0);
         for(auto S: C.BaseSentences) {
             // Make this rely on an already created doc
-            double Similarity = Compare(Input, S.String);
+            double Similarity = D.similarity(S.Doc);
+            std::cout << Similarity << ": " << S.String << std::endl;
             if(Similarity > Highest) {
                 Name = C.Name;
+                Highest = Similarity;
             }
             j++;
         }
         i++;
     }
+
+    Highest = 0;
     for(auto C: Cmds.GetCommandsMaster()) {
         if(C.Name == Name) {
-            C.Sentences;
+            std::cout << std::endl <<  "Command: " << C.Name << std::endl;
+            for(auto S: C.Sentences) {
+                double Similarity = D.similarity(S.Doc);
+                if(Similarity > Highest) {
+                    /* std::cout << Similarity << ": " << S.Command << std::endl; */
+                    Highest = Similarity;
+                    CMD = S.Command;
+                    if(S.Optargs.size() > 0) {
+                        for(std::string O: S.Optargs) {
+                            /* std::cout << O << std::endl; */
+                            size_t pos = Input.find(O);
+                            std::string Optarg;
+                            if (pos != std::string::npos) {
+                                // If substring is found, get the word next to it
+                                size_t start = pos + O.length() + 1; // Start after the substring and the space
+                                size_t end = Input.find(" ", start); // Find the next space after the substring
+                                Optarg = Input.substr(start, end - start); // Extract the word
+                                
+                                /* std::cout << "Substring found at position " << pos << std::endl; */
+                                /* std::cout << "The word next to it is: " << Optarg << std::endl; */
+                                pos = CMD.find("optarg");
+                                
+                                if (pos != std::string::npos) {
+                                    // If word is found, replace it
+                                    CMD.replace(pos, 6, Optarg);
+                                    /* std::cout << CMD << std::endl; */
+                                } else {
+                                    /* std::cout << "Word not found." << std::endl; */
+                                }
+                            } else {
+                                /* std::cout << "Substring not found." << std::endl; */
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-    CMD = Name;
 
     return 0;
 }

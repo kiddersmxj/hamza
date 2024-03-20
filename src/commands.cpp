@@ -58,9 +58,14 @@ void Commands::Create() {
         // Begin main matrix population
         // Adds the command bases
         int i(0);
-        std::vector<std::string> Bases;
+        std::vector<std::pair<std::string, std::string>> Bases;
         for(auto Base: C.Bases) {
-            Bases.push_back(Base);
+            std::pair<std::string, std::string> P;
+            P.first = Base; P.second = C.Command;
+            for(std::string F: C.DefaultFlags) {
+                P.second = P.second + " " + F;
+            }
+            Bases.push_back(P);
             i++;
         }
 
@@ -84,40 +89,125 @@ void Commands::Create() {
                     Opts.push_back(k::StripTrailingNL(CheckListarg.Read()));
                 }
                 Opts.pop_back(); // Remove EXIT (last return from child.read()
+
+                // Define main aspects of ArgGroup
+                ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
+
+                // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
+                // For optargs this will just be one Arg per ArgSubGroup
+                for(auto A: Arg) {
+                    ArgSubGroup SubGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
+                    for(auto O: Opts) {
+                        std::string Output = A + " " + O;
+
+                        ::Arg Arg = { .OptionType = Option, .String = Output, \
+                            .Flag = C.Flags.at(j) + " " + O, .Base = A, .Doc = nlp.parse(Output) };
+                        /* CreatedA.String = Output; */
+                        /* CreatedA.OptionType = Option; */
+                        /* CreatedA.Base = A; */
+                        /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
+
+                        //need to add ability for args to not be exclusive (open on tag and destroy window eg)
+
+                        SubGroup.Args.push_back(Arg);
+                    }
+                    ArgGroup.SubGroup.push_back(SubGroup);
+                }
+                CreatedArgs.push_back(ArgGroup);
+                j++;
+
             } else if(Option == "optarg") {
                 Opts.push_back("optarg");
+
+                // Define main aspects of ArgGroup
+                ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
+
+                // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
+                // For optargs this will just be one Arg per ArgSubGroup
+                for(auto O: Opts) {
+                    ArgSubGroup SubGroup = { .OptionType = Option, .Base = Arg.at(0) , .BaseFlag = C.Flags.at(j) };
+                    for(auto A: Arg) {
+                        std::string Output = A;
+
+                        ::Arg Arg = { .OptionType = Option, .String = Output, \
+                            .Flag = C.Flags.at(j) + " " + O, .Base = A, .Doc = nlp.parse(Output) };
+                        /* CreatedA.String = Output; */
+                        /* CreatedA.OptionType = Option; */
+                        /* CreatedA.Base = A; */
+                        /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
+
+                        //need to add ability for args to not be exclusive (open on tag and destroy window eg)
+
+                        SubGroup.Args.push_back(Arg);
+                    }
+                    ArgGroup.SubGroup.push_back(SubGroup);
+                }
+                CreatedArgs.push_back(ArgGroup);
+                j++;
+
             } else if(Option == ".") {
                 Opts.push_back(".");
+
+                // Define main aspects of ArgGroup
+                ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
+
+                // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
+                // For optargs this will just be one Arg per ArgSubGroup
+                for(auto A: Arg) {
+                    ArgSubGroup SubGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
+                    for(auto O: Opts) {
+                        std::string Output = A;
+
+                        ::Arg Arg = { .OptionType = Option, .String = Output, \
+                            .Flag = C.Flags.at(j), .Base = A, .Doc = nlp.parse(Output) };
+                        /* CreatedA.String = Output; */
+                        /* CreatedA.OptionType = Option; */
+                        /* CreatedA.Base = A; */
+                        /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
+
+                        //need to add ability for args to not be exclusive (open on tag and destroy window eg)
+
+                        SubGroup.Args.push_back(Arg);
+                    }
+                    ArgGroup.SubGroup.push_back(SubGroup);
+                }
+                CreatedArgs.push_back(ArgGroup);
+                j++;
+
+
             } else {
                 Opts.push_back(Option);
                 Option = "else";
-            }
 
-            // Define main aspects of ArgGroup
-            ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
+                // Define main aspects of ArgGroup
+                ArgGroup = { .OptionType = Option, .Base = Arg.at(0), .BaseFlag = C.Flags.at(j) };
 
-            // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
-            // For optargs this will just be one Arg per ArgSubGroup
-            for(auto A: Arg) {
-                ArgSubGroup SubGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
-                for(auto O: Opts) {
-                    std::string Output = A + " " + O;
+                // This is for creation of an arg group (for listargs this will have multiple Arg structs in a vector
+                // For optargs this will just be one Arg per ArgSubGroup
+                for(auto A: Arg) {
+                    ArgSubGroup SubGroup = { .OptionType = Option, .Base = A , .BaseFlag = C.Flags.at(j) };
+                    for(auto O: Opts) {
+                        std::string Output = A + " " + O;
 
-                    ::Arg Arg = { .OptionType = Option, .String = Output, \
-                        .Flag = C.Flags.at(j) + " " + O, .Base = A, .Doc = nlp.parse(Output) };
-                    /* CreatedA.String = Output; */
-                    /* CreatedA.OptionType = Option; */
-                    /* CreatedA.Base = A; */
-                    /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
+                        ::Arg Arg = { .OptionType = Option, .String = Output, \
+                            .Flag = C.Flags.at(j) + " " + O, .Base = A, .Doc = nlp.parse(Output) };
+                        /* CreatedA.String = Output; */
+                        /* CreatedA.OptionType = Option; */
+                        /* CreatedA.Base = A; */
+                        /* CreatedA.Flag = C.Flags.at(j) + " " + O; */
 
-                    //need to add ability for args to not be exclusive (open on tag and destroy window eg)
+                        //need to add ability for args to not be exclusive (open on tag and destroy window eg)
 
-                    SubGroup.Args.push_back(Arg);
+                        SubGroup.Args.push_back(Arg);
+                    }
+                    ArgGroup.SubGroup.push_back(SubGroup);
                 }
-                ArgGroup.SubGroup.push_back(SubGroup);
+                CreatedArgs.push_back(ArgGroup);
+                j++;
+
+
             }
-            CreatedArgs.push_back(ArgGroup);
-            j++;
+
         }
         Add(C.Name, CreatedArgs, Bases, C.DefaultFlags);
     }
@@ -146,6 +236,17 @@ void Commands::Create() {
 /*         } */
 /*     } */
 
+    /* for(auto C: GetCommandsMaster()) { */
+    /*     for(auto S: C.Sentences) { */
+    /*         Sentences.push_back(S); */
+    /*     } */
+    /* } */
+
+    /* std::cout << "-------------Sentences-------------\n"; */
+    /* for(auto S: Sentences) { */
+    /*     std::cout << S.String << " (" << S.Command << ")\n"; */
+    /* } */
+
 }
 
 // the heirachy does not goes Args--|
@@ -154,30 +255,47 @@ void Commands::Create() {
 //                                  |     |-Doc-Flag-String-OptionType
 //                                  |     
 //                                  |-Arg-|-A-A-A-A
-void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases, std::vector<std::string> DefaultFlags) {
+void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::pair<std::string, std::string>> Bases, \
+        std::vector<std::string> DefaultFlags) {
     // Creating base sentences
     std::vector<std::string> SentenceBases;
-    std::vector<std::vector<std::string>> ComplexSentences;
+    std::vector<std::vector<std::pair<std::string, std::string>>> SentenceSections;
+    std::vector<std::string> Optargs;
     for(ArgGroup ArgGroup: Args) {
         SentenceBases.push_back(ArgGroup.Base);
 
-        // Complex Sentences
-        std::vector<std::string> Section;
+        // Complex Sentences Builder beginning (creats the sections)
+        std::vector<std::pair<std::string, std::string>> Section;
         for(auto SubGroup: ArgGroup.SubGroup) {
-            std::cout << "SubGroup: " << SubGroup.Base << " " << SubGroup.OptionType << std::endl;
+            /* std::cout << "SubGroup: " << SubGroup.Base << " " << SubGroup.OptionType << std::endl; */
             if(SubGroup.OptionType == "optarg") {
-                Section.push_back(SubGroup.Args.at(0).String);
-                std::cout << "\t" << SubGroup.Args.at(0).String << std::endl;
+                for(auto Arg: SubGroup.Args) {
+                    std::pair<std::string, std::string> Pair; Pair.first = Arg.String; Pair.second = Arg.Flag;
+                    std::string Optarg = Arg.String;
+                    Section.push_back(Pair);
+                    Optargs.push_back(Optarg);
+                    /* std::cout << "\t" << Arg.String << std::endl; */
+                }
+                /* Section.push_back(SubGroup.Args.at(0).String); */
+                /* std::cout << "\t" << SubGroup.Args.at(0).String << std::endl; */
             } else if(SubGroup.OptionType == "listarg") {
                 for(auto Arg: SubGroup.Args) {
-                    Section.push_back(Arg.String);
-                    std::cout << "\t" << Arg.String << std::endl;
+                    std::pair<std::string, std::string> Pair; Pair.first = Arg.String; Pair.second = Arg.Flag;
+                    Section.push_back(Pair);
+                    /* std::cout << "\t" << Arg.String << std::endl; */
                 }
             } else if(SubGroup.OptionType == ".") {
-                Section.push_back(SubGroup.Args.at(0).String);
-                std::cout << "\t" << SubGroup.Args.at(0).String << std::endl;
-            } else {}
-        ComplexSentences.push_back(Section);
+                std::pair<std::string, std::string> Pair;
+                Pair.first = SubGroup.Args.at(0).String; Pair.second = SubGroup.Args.at(0).Flag;
+                Section.push_back(Pair);
+                /* std::cout << "\t" << SubGroup.Args.at(0).String << std::endl; */
+            } else { std::cout << "************WEIRD ELSE************\n"; }
+            /* std::cout << "t: " << ArgGroup.SubGroup.at(ArgGroup.SubGroup.size()-1).Base << std::endl; */
+            if(SubGroup.Base == ArgGroup.SubGroup.at(ArgGroup.SubGroup.size() - 1).Base \
+                    && SubGroup.Base != "") {
+                /* std::cout << SubGroup.Base << std::endl; */
+                SentenceSections.push_back(Section);
+            }
         }
 
     }
@@ -186,25 +304,50 @@ void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std
 
     std::vector<Sentence> BaseSentences;
     for(const auto& Combination : Combinations) {
-        Sentence Sentence = { .Doc = nlp.parse(Bases.at(0) + " " + Combination), .String = Bases.at(0) + " " + Combination };
+        Sentence Sentence = { .Doc = nlp.parse(Bases.at(0).first + " " + Combination), \
+            .String = Bases.at(0).first + " " + Combination };
         /* std::cout << Bases.at(0) << " " << Combination << std::endl; */
         BaseSentences.push_back(Sentence);
     }
 
-    std::cout << "\n---------\n";
-    for(std::vector<std::string> S: ComplexSentences) {
-        std::cout << "new\n";
-        for(std::string s: S) {
-            std::cout << "\t" << s << std::endl;
-        }
-    }
-    std::cout << "---------\n";
+    /* std::cout << "\n---------\nSentence Sections:\n"; */
+    /* for(std::vector<std::pair<std::string, std::string>> S: SentenceSections) { */
+    /*     std::cout << "new\n"; */
+    /*     for(std::pair<std::string, std::string> s: S) { */
+    /*         std::cout << "\t" << s.first << "(" << s.second << ")" << std::endl; */
+    /*     } */
+    /* } */
+    /* std::cout << "---------\n\n"; */
 
-    /* for(auto O: GetAllMatrixCombinations(Sentences)) { */
-    /*     std::cout << O << std::endl; */
+    std::vector<std::pair<std::string, std::string>> SentencePairs;
+    SentencePairs = CreateSentencePairs(SentenceSections, Bases);
+
+    double i(0);
+    double Per(0);
+    /* std::cout << std::endl; */
+    std::vector<Sentence> SentenceStructures;
+    for(std::pair<std::string, std::string> P: SentencePairs) {
+        Sentence S = { .Doc = nlp.parse(P.first), .String = P.first, .Command = P.second, .Optargs = Optargs };
+        /* std::cout << " " << P.first << " (" << P.second << ")\n"; */
+        /* std::cout << " " << S.String << " (" << S.Command << ")\n"; */
+        /* double NewPer = std::round((i/(SentencePairs.size()-1))*100); */
+        double NewPer = ((i/(SentencePairs.size()-1))*100);
+        if(NewPer != Per) {
+            // Useful for long doc parsing percentages :)
+            k::WriteOnSameLine(std::to_string(NewPer) + "%");
+        }
+        Per = NewPer;
+        SentenceStructures.push_back(S);
+        i++;
+    }
+    /* std::cout << std::endl; */
+
+    /* std::cout << std::endl << "____senstructs_____\n"; */
+    /* for(auto S: SentenceStructures) { */
+    /*     std::cout << S.String << std::endl; */
     /* } */
 
-    Command Command = { .Name = Name, .BaseSentences = BaseSentences, .Bases = Bases, .Args = Args };
+    Command Command = { .Name = Name, .BaseSentences = BaseSentences, .Sentences = SentenceStructures, .Bases = Bases, .Args = Args };
     CommandsMaster.push_back(Command);
 }
 
@@ -279,6 +422,53 @@ std::vector<std::string> GetAllCombinations(const std::vector<std::string>& stri
     std::vector<std::string> result;
     GenerateCombinations(strings, 0, "", result);
     return result;
+}
+
+std::vector<std::pair<std::string, std::string>> Combine(std::vector<std::pair<std::string, std::string>> X, \
+        std::vector<std::pair<std::string, std::string>> Y) {
+    std::vector<std::pair<std::string, std::string>> Combination;
+    for(std::pair<std::string, std::string> x: X) {
+        Combination.push_back(x);
+    }
+    for(std::pair<std::string, std::string> y: Y) {
+        Combination.push_back(y);
+    }
+
+    for(std::pair<std::string, std::string> x: X) {
+        for(std::pair<std::string, std::string> y: Y) {
+            std::pair<std::string, std::string> Pair;
+            Pair.first = x.first + " " + y.first; Pair.second = x.second + " " + y.second;
+            Combination.push_back(Pair);
+        }
+    }
+    return Combination;
+}
+
+std::vector<std::pair<std::string, std::string>> CreateSentencePairs(std::vector<std::vector<std::pair<std::string, \
+        std::string>>> SentenceSections, std::vector<std::pair<std::string, std::string>> Bases) {
+    int i(0);
+    std::vector<std::pair<std::string, std::string>> CurrentConcatinations;
+    for(std::vector<std::pair<std::string, std::string>> Section: SentenceSections) {
+        if(i == 0) {
+            CurrentConcatinations = Section;
+        } else {
+            CurrentConcatinations = Combine(CurrentConcatinations, Section);
+        }
+        i++;
+    }
+
+    std::vector<std::pair<std::string, std::string>> FinalConcatinations;
+    for(std::pair<std::string, std::string> P: CurrentConcatinations) {
+        for(std::pair<std::string, std::string> B: Bases) {
+            std::pair<std::string, std::string> F;
+            F.first = B.first + " " + P.first;
+            F.second = B.second + " " + P.second;
+            /* std::cout << F.first << " (" << F.second << ")" << std::endl; */
+            FinalConcatinations.push_back(F);
+        }
+    }
+
+    return FinalConcatinations;
 }
 
 // Copyright (c) 2023, Maxamilian Kidd-May

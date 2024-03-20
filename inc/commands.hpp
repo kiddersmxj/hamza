@@ -45,13 +45,13 @@ typedef struct {
     Spacy::Doc Doc;
     std::string String;
     std::string Command;
-    std::vector<std::pair<std::string, std::string>> Optargs;
+    std::vector<std::string> Optargs;
 } Sentence;
 typedef struct {
     std::string Name;
     std::vector<Sentence> BaseSentences;
     std::vector<Sentence> Sentences;
-    std::vector<std::string> Bases;
+    std::vector<std::pair<std::string, std::string>> Bases;
     std::vector<ArgGroup> Args;
 } Command;
 
@@ -59,13 +59,13 @@ class Commands {
     private:
         Spacy::Spacy spacy;
         Spacy::Nlp nlp;
-        std::vector<Sentence> Queue1;
-        std::vector<Sentence> Queue2;
+        std::vector<Sentence> Sentences;
     public:
         std::vector<Command> CommandsMaster;
         Commands(Spacy::Spacy &spacy, Spacy::Nlp &nlp);
         void Create();
-        void Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::string> Bases, std::vector<std::string> DefaultFlags);
+        void Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::pair<std::string, std::string>> Bases, \
+                std::vector<std::string> DefaultFlags);
         Command GetCommand(std::string Name);
         Command GetCommand(int Index);
         std::vector<Command> GetCommandsMaster();
@@ -79,6 +79,10 @@ void GenerateMatrixCombinations(const std::vector<std::vector<std::string>>& inp
 void GenerateCombinations(const std::vector<std::string>& strings, int index, \
         std::vector<std::string>& currentCombination, std::vector<std::vector<std::string>>& result);
 std::vector<std::string> GetAllCombinations(const std::vector<std::string>& strings);
+std::vector<std::pair<std::string, std::string>> Combine(std::vector<std::pair<std::string, std::string>> X, \
+        std::vector<std::pair<std::string, std::string>> Y);
+std::vector<std::pair<std::string, std::string>> CreateSentencePairs(std::vector<std::vector<std::pair<std::string, \
+        std::string>>> SentenceSections, std::vector<std::pair<std::string, std::string>> Bases);
 
 #endif
 
