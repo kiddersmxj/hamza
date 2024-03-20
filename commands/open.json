@@ -13,7 +13,7 @@
         "options": {
             "project": [ "listarg" ],
             "file": [ "listarg" ],
-            "ranger": [ "ranger" ],
+            "ranger": [ "." ],
             "here": [ "." ],
             "destroy": [ "." ]
         },

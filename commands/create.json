@@ -2,7 +2,7 @@
     "create": {
         "command": "create",
         "index": 0,
-        "bases": [ "create project", "create program", "create" ],
+        "bases": [ "create", "create program", "create project" ],
         "args": {
             "name": [ "name", "named", "called" ],
             "type": [ "type", "of type" ]

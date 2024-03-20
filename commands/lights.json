@@ -9,9 +9,9 @@
             "toggle": [ "toggle" ]
         },
         "options": {
-            "on": [ "on" ],
-            "off": [ "off" ],
-            "toggle": [ "toggle" ]
+            "on": [ "." ],
+            "off": [ "." ],
+            "toggle": [ "." ]
         },
         "name": "lights",
         "flags": [ "--on", "--off", "--toggle" ],
