@@ -257,8 +257,11 @@ void Commands::Create() {
 //                                  |-Arg-|-A-A-A-A
 void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std::pair<std::string, std::string>> Bases, \
         std::vector<std::string> DefaultFlags) {
+
     // Creating base sentences
+    // Sentence bases are the overall base for the prelim scan detailed in the next block
     std::vector<std::string> SentenceBases;
+    // Sections are like the args that will get added together later for every variation
     std::vector<std::vector<std::pair<std::string, std::string>>> SentenceSections;
     std::vector<std::string> Optargs;
     for(ArgGroup ArgGroup: Args) {
@@ -299,9 +302,12 @@ void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std
         }
 
     }
-    /* std::vector<std::string> CurrentCombination; */
+
+    // Gets all the combos of the sentence bases so that we can estimate
     std::vector<std::string> Combinations = GetAllCombinations(SentenceBases);
 
+    // Creates the base sentences (just takes the top layer of each arg to guage which cmd it may be
+    // could defo use more work to make it more accurate
     std::vector<Sentence> BaseSentences;
     for(const auto& Combination : Combinations) {
         Sentence Sentence = { .Doc = nlp.parse(Bases.at(0).first + " " + Combination), \
@@ -310,44 +316,28 @@ void Commands::Add(std::string Name, std::vector<ArgGroup> Args, std::vector<std
         BaseSentences.push_back(Sentence);
     }
 
-    /* std::cout << "\n---------\nSentence Sections:\n"; */
-    /* for(std::vector<std::pair<std::string, std::string>> S: SentenceSections) { */
-    /*     std::cout << "new\n"; */
-    /*     for(std::pair<std::string, std::string> s: S) { */
-    /*         std::cout << "\t" << s.first << "(" << s.second << ")" << std::endl; */
-    /*     } */
-    /* } */
-    /* std::cout << "---------\n\n"; */
-
+    // uses the created arg vectors and adds them all together to get all variations
     std::vector<std::pair<std::string, std::string>> SentencePairs;
     SentencePairs = CreateSentencePairs(SentenceSections, Bases);
 
+    // Creates the final sentences for each command
     double i(0);
     double Per(0);
-    /* std::cout << std::endl; */
     std::vector<Sentence> SentenceStructures;
     for(std::pair<std::string, std::string> P: SentencePairs) {
         Sentence S = { .Doc = nlp.parse(P.first), .String = P.first, .Command = P.second, .Optargs = Optargs };
-        /* std::cout << " " << P.first << " (" << P.second << ")\n"; */
-        /* std::cout << " " << S.String << " (" << S.Command << ")\n"; */
-        /* double NewPer = std::round((i/(SentencePairs.size()-1))*100); */
         double NewPer = ((i/(SentencePairs.size()-1))*100);
         if(NewPer != Per) {
-            // Useful for long doc parsing percentages :)
             k::WriteOnSameLine(std::to_string(NewPer) + "%");
         }
         Per = NewPer;
         SentenceStructures.push_back(S);
         i++;
     }
-    /* std::cout << std::endl; */
+    std::cout << std::endl;
 
-    /* std::cout << std::endl << "____senstructs_____\n"; */
-    /* for(auto S: SentenceStructures) { */
-    /*     std::cout << S.String << std::endl; */
-    /* } */
-
-    Command Command = { .Name = Name, .BaseSentences = BaseSentences, .Sentences = SentenceStructures, .Bases = Bases, .Args = Args };
+    Command Command = { .Name = Name, .BaseSentences = BaseSentences, .Sentences = SentenceStructures, \
+        .Bases = Bases, .Args = Args };
     CommandsMaster.push_back(Command);
 }
 
