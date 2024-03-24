@@ -6,11 +6,14 @@
 #include <std-k.hpp>
 
 const std::string ProgramName = "hamza";
-const std::string Version = "0.0.0";
+const std::string Version = "0.2.0";
 const std::string UsageNotes = R"(usage: hamza
 options:
     -h / --help         show help and usage notes
     -v / --version      print version and exit
+    -a / --assimilate   create cmd output from natural language
+    -p / --parse        create cmd output from natural language input
+    -f / --face-rec     run face recognition script
 )";
 
 const std::string HamzaDir = HOME + "/.hamza";

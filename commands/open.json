@@ -2,7 +2,7 @@
     "open": {
         "command": "open",
         "index": 3,
-        "bases": [ "open project", "open program", "open", "open file", "bring up", "pull up", "open up" ],
+        "bases": [ "open", "open project", "open program", "open file", "bring up", "pull up", "open up" ],
         "args": {
             "project": [ "project", "named", "called" ],
             "file": [ "file" ],
@@ -13,11 +13,11 @@
         "options": {
             "project": [ "listarg" ],
             "file": [ "listarg" ],
-            "ranger": [ "ranger" ],
+            "ranger": [ "." ],
             "here": [ "." ],
             "destroy": [ "." ]
         },
-        "flags": [ "-p", "-f", "-r" ],
+        "flags": [ "-p", "-f", "-r", "-t", "-d" ],
         "defaults": "",
         "confirm": false,
         "read": 1

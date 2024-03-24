@@ -17,7 +17,7 @@ typedef struct {
     std::vector<std::vector<std::string>> Options;
     std::vector<std::string> Flags;
     std::vector<std::string> DefaultFlags;
-} Command;
+} Commandxx;
 
 #endif
 

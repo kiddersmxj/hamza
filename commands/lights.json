@@ -10,7 +10,8 @@
         },
         "options": {
             "on": [ "." ],
-            "off": [ "." ]
+            "off": [ "." ],
+            "toggle": [ "." ]
         },
         "name": "lights",
         "flags": [ "--on", "--off", "--toggle" ],

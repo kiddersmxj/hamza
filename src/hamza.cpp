@@ -10,6 +10,7 @@ int main(int argc, char** argv) {
     int VersionFlag = 0;
     int FRFlag = 0;
     int AssimilateFlag = 0;
+    int TestFlag = 0;
     std::string Parse = "";
     int opt;
 
@@ -20,12 +21,13 @@ int main(int argc, char** argv) {
         { "face-rec", no_argument, &FRFlag, 1 },
         { "assimilate", no_argument, &AssimilateFlag, 1 },
         { "parse", required_argument, NULL, 'p' },
+        { "test", no_argument, &TestFlag, 't' },
         { 0 }
     };
 
     // Infinite loop, to be broken when we are done parsing options
     while (1) {
-        opt = getopt_long(argc, argv, "hvfap:", Opts, 0);
+        opt = getopt_long(argc, argv, "hvfap:t", Opts, 0);
 
         // A return value of -1 indicates that there are no more options
         if (opt == -1) {
@@ -51,6 +53,10 @@ int main(int argc, char** argv) {
             break;
         case 'p':
             Parse = optarg;
+            AssimilateFlag = 1;
+            break;
+        case 't':
+            TestFlag = 1;
             break;
         case '?':
             Usage();
@@ -68,16 +74,30 @@ int main(int argc, char** argv) {
     if(VersionFlag) {
     }
 
+    if(TestFlag) {
+        k::Time Time;
+        Spacy::Spacy spacy;
+        Spacy::Nlp nlp(spacy.load("en_core_web_md"));
+        Commands Commands(spacy, nlp);
+        Assimilate Assimilate(Commands, spacy, nlp);;
+        std::cout << Time.Close() << "ms" << std::endl;
+        /* Commands.Create(); */
+
+        /* std::vector<Command> Commands; */
+        /* LoadCommands(Commands); */
+        /* CreateCommandIterations(); */
+    }
+
     if(FRFlag) {
         DoFR();
     }
 
     if(AssimilateFlag) {
-        std::vector<Command> Commands;
-        LoadCommands(Commands);
-
         k::Time Time;
-        Assimilate Meaning(Commands);
+        Spacy::Spacy spacy;
+        Spacy::Nlp nlp(spacy.load("en_core_web_md"));
+        Commands Commands(spacy, nlp);
+        Assimilate Assimilate(Commands, spacy, nlp);;
         std::cout << Time.Close() << "ms" << std::endl;
 
         if(Parse == "") {
@@ -92,7 +112,7 @@ int main(int argc, char** argv) {
             getline(std::cin, Corpus);
             while(Corpus != "") {
                 std::string CMD;
-                int Read = Meaning.Attribute(Corpus, CMD);
+                int Read = Assimilate.Attribute(Corpus, CMD);
                 if(Read != -1) {
                     std::cout
                             << std::endl
@@ -110,7 +130,7 @@ int main(int argc, char** argv) {
             }
         } else  {
             std::string CMD;
-            int Read = Meaning.Attribute(Parse, CMD);
+            int Read = Assimilate.Attribute(Parse, CMD);
             if(Read != -1) {
                 std::cout
                         << std::endl
@@ -161,63 +181,62 @@ void DoFR() {
     FR.Close();
 }
 
-void LoadCommands(std::vector<Command> &Commands) {
-    json Cmds;
-    int i(0);
-    for (const auto & File : fs::directory_iterator(CommandsDir)) {
-        /* std::cout << File.path() << std::endl; */
-        std::ifstream JFile(File.path());
-        nlohmann::ordered_json JCmd = nlohmann::ordered_json::parse(JFile);
-        for (nlohmann::ordered_json::iterator it = JCmd.begin(); it != JCmd.end(); ++it) {
-            Command C;
-            /* std::cout << JCmd[C.Name] << std::endl; */
-            C.Name = it.key();
-            C.Index = JCmd[C.Name]["index"]; // Not used or currently reliable
-            C.Confirm = JCmd[C.Name]["confirm"];
-            C.Read = JCmd[C.Name]["read"];
-            C.Command = JCmd[C.Name]["command"];
-            for(std::string Base: JCmd[C.Name]["bases"])
-                C.Bases.push_back(Base);
-            for(auto Args: JCmd[C.Name]["args"]) {
-                std::vector<std::string> A;
-                for(auto a: Args)
-                    A.push_back(a);
-                C.Args.push_back(A);
-            }
-            for(auto Options: JCmd[C.Name]["options"]) {
-                std::vector<std::string> O;
-                for(auto o: Options)
-                    O.push_back(o);
-                C.Options.push_back(O);
-            }
-            for(std::string Flag: JCmd[C.Name]["flags"])
-                C.Flags.push_back(Flag);
-            for(std::string DefaultFlag: JCmd[C.Name]["defaults"])
-                C.DefaultFlags.push_back(DefaultFlag);
+/* void LoadCommands(std::vector<Command> &Commands) { */
+/*     int i(0); */
+/*     for (const auto & File : fs::directory_iterator(CommandsDir)) { */
+/*         /1* std::cout << File.path() << std::endl; *1/ */
+/*         std::ifstream JFile(File.path()); */
+/*         nlohmann::ordered_json JCmd = nlohmann::ordered_json::parse(JFile); */
+/*         for (nlohmann::ordered_json::iterator it = JCmd.begin(); it != JCmd.end(); ++it) { */
+/*             Command C; */
+/*             /1* std::cout << JCmd[C.Name] << std::endl; *1/ */
+/*             C.Name = it.key(); */
+/*             C.Index = JCmd[C.Name]["index"]; // Not used or currently reliable */
+/*             C.Confirm = JCmd[C.Name]["confirm"]; */
+/*             C.Read = JCmd[C.Name]["read"]; */
+/*             C.Command = JCmd[C.Name]["command"]; */
+/*             for(std::string Base: JCmd[C.Name]["bases"]) */
+/*                 C.Bases.push_back(Base); */
+/*             for(auto Args: JCmd[C.Name]["args"]) { */
+/*                 std::vector<std::string> A; */
+/*                 for(auto a: Args) */
+/*                     A.push_back(a); */
+/*                 C.Args.push_back(A); */
+/*             } */
+/*             for(auto Options: JCmd[C.Name]["options"]) { */
+/*                 std::vector<std::string> O; */
+/*                 for(auto o: Options) */
+/*                     O.push_back(o); */
+/*                 C.Options.push_back(O); */
+/*             } */
+/*             for(std::string Flag: JCmd[C.Name]["flags"]) */
+/*                 C.Flags.push_back(Flag); */
+/*             for(std::string DefaultFlag: JCmd[C.Name]["defaults"]) */
+/*                 C.DefaultFlags.push_back(DefaultFlag); */
 
-            /* std::cout   << "Name: " << C.Name */
-            /*             << " Index: " << C.Index */ 
-            /*             << " Confirm: " << C.Confirm */ 
-            /*             << std::endl; */
-            /* std::cout << "Bases: " << std::endl; */
-            /* k::VPrint(C.Bases); */
-            /* std::cout << "Args1: \n"; */
-            /* k::VPrint(C.Args.at(0)); */
-            /* std::cout << "Args2: \n"; */
-            /* k::VPrint(C.Args.at(1)); */
-            /* std::cout << "Opts1: \n"; */
-            /* k::VPrint(C.Options.at(0)); */
-            /* std::cout << "Opts2: \n"; */
-            /* k::VPrint(C.Options.at(1)); */
-            /* std::cout << "Flags: \n"; */
-            /* k::VPrint(C.Flags); */
-            /* std::cout << "DefaultFlags: \n"; */
-            /* k::VPrint(C.DefaultFlags); */
+/*             /1* std::cout   << "Name: " << C.Name *1/ */
+/*             /1*             << " Index: " << C.Index *1/ */ 
+/*             /1*             << " Confirm: " << C.Confirm *1/ */ 
+/*             /1*             << std::endl; *1/ */
+/*             /1* std::cout << "Bases: " << std::endl; *1/ */
+/*             /1* k::VPrint(C.Bases); *1/ */
+/*             /1* std::cout << "Args1: \n"; *1/ */
+/*             /1* k::VPrint(C.Args.at(0)); *1/ */
+/*             /1* std::cout << "Args2: \n"; *1/ */
+/*             /1* k::VPrint(C.Args.at(1)); *1/ */
+/*             /1* std::cout << "Opts1: \n"; *1/ */
+/*             /1* k::VPrint(C.Options.at(0)); *1/ */
+/*             /1* std::cout << "Opts2: \n"; *1/ */
+/*             /1* k::VPrint(C.Options.at(1)); *1/ */
+/*             /1* std::cout << "Flags: \n"; *1/ */
+/*             /1* k::VPrint(C.Flags); *1/ */
+/*             /1* std::cout << "DefaultFlags: \n"; *1/ */
+/*             /1* k::VPrint(C.DefaultFlags); *1/ */
 
-            Commands.push_back(C);
-        }
-    }
-}
+/*             Commands.push_back(C); */
+/*         } */
+/*     } */
+/* } */
 
 /* json Merge(const json &a, const json &b) { */
 /*     json result = a.flatten(); */
