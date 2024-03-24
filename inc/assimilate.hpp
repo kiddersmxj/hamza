@@ -31,7 +31,7 @@ class Assimilate {
         void PopulateFamily(Spacy::Token token, std::vector<std::string> &children, \
                                     std::vector<std::string> &ancestors);
         void RemoveBase(std::string Base, std::string &Clause);
-        void RemoveStopwords(std::string &sentence);
+        void RemoveStopwords(std::string &Input);
         double FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc);
         double FindInWords(std::string Opt, std::vector<Spacy::Doc> WordDoc, std::string &Return);
         std::string ParseCommand(JCommand C, std::vector<std::string> PassingArgs, \

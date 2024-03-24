@@ -45,8 +45,11 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
     /* Commands.at(++n) = "create program destroy new type"; */
     /* k::VPrint(Commands); */
 
+    RemoveStopwords(Input);
+
     Spacy::Doc D = nlp.parse(Input);
     double Highest(0);
+    std::string HighestCMD;
     std::string Name;
     int i(0);
     for(auto C: Cmds.GetCommandsMaster()) {
@@ -58,6 +61,7 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
             if(Similarity > Highest) {
                 Name = C.Name;
                 Highest = Similarity;
+                HighestCMD = S.String;
             }
             j++;
         }
@@ -67,13 +71,15 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
     Highest = 0;
     for(auto C: Cmds.GetCommandsMaster()) {
         if(C.Name == Name) {
-            std::cout << std::endl <<  "Command: " << C.Name << std::endl;
+            std::cout << std::endl <<  "Command: " << C.Name << std::endl \
+                << "(" << HighestCMD << ")" << std::endl;
             for(auto S: C.Sentences) {
                 double Similarity = D.similarity(S.Doc);
                 if(Similarity > Highest) {
                     /* std::cout << Similarity << ": " << S.Command << std::endl; */
                     Highest = Similarity;
                     CMD = S.Command;
+                    HighestCMD = S.String;
                     if(S.Optargs.size() > 0) {
                         for(std::string O: S.Optargs) {
                             /* std::cout << O << std::endl; */
@@ -105,6 +111,8 @@ int Assimilate::Attribute(std::string Input, std::string &CMD) {
             }
         }
     }
+    
+    std::cout << "(" << HighestCMD << ")" << std::endl;
 
     return 0;
 }
